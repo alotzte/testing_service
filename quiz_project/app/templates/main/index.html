@@ -1,10 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-</body>
-</html>
+{% block content %}
+<div class="container text-center mt-5">
+    <div class="jumbotron">
+        <h1 class="display-4">Добро пожаловать, {{ current_user.username }}!</h1>
+        <p class="lead">Вы успешно вошли в систему QuizMaster.</p>
+        <hr class="my-4">
+        <p>На данный момент это главная страница вашего аккаунта. Скоро здесь появятся доступные для вас тесты.</p>
+        
+        {# Это блок для администраторов. Он будет виден только пользователям с ролью 'admin' #}
+        {% if current_user.role == 'admin' %}
+            <div class="alert alert-info mt-4">
+                Вы вошли как <strong>администратор</strong>. Вы можете перейти в панель администратора для создания и управления тестами.
+            </div>
+            <a class="btn btn-success btn-lg" href="#" role="button">Перейти в Админ-панель</a>
+            {# Ссылка пока никуда не ведет, мы реализуем это на следующем этапе #}
+        {% else %}
+             <a class="btn btn-primary btn-lg" href="#" role="button">Найти тест</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

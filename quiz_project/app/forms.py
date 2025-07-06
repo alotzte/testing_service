@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, SelectField
+from wtforms import BooleanField, StringField, PasswordField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Length, EqualTo, ValidationError
 from .models import User
 
@@ -44,3 +44,18 @@ class RegistrationForm(FlaskForm):
         if user:
             raise ValidationError('Это имя пользователя уже занято. Пожалуйста, выберите другое.')
 
+
+class LoginForm(FlaskForm):
+    """Класс для формы входа."""
+    # Поле для ввода логина. Проверяем только то, что оно не пустое.
+    username = StringField('Логин', validators=[DataRequired(message="Введите ваш логин.")])
+
+    # Поле для ввода пароля.
+    password = PasswordField('Пароль', validators=[DataRequired(message="Введите ваш пароль.")])
+
+    # Галочка "Запомнить меня".
+    # BooleanField - это и есть чекбокс.
+    remember_me = BooleanField('Запомнить меня')
+
+    # Кнопка для отправки формы.
+    submit = SubmitField('Войти')

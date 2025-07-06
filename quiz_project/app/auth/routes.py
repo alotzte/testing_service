@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, redirect, url_for, flash
+from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask_login import login_user, logout_user, login_required, current_user
 
 # Используем ваш стиль относительных импортов
-from ..forms import RegistrationForm
+from ..forms import RegistrationForm, LoginForm
 from ..models import User
 from .. import db
 
@@ -44,9 +45,43 @@ def register():
     return render_template('auth/register.html', title='Регистрация', form=form)
 
 
-# ДОБАВЛЕНО: "Заглушка" для страницы входа.
-# Это необходимо, чтобы redirect(url_for('auth.login')) не вызывал ошибку.
-@auth_bp.route('/login')
+@auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    return "<h1>Страница входа</h1><p>Будет реализована на следующем этапе.</p>"
+    # Если пользователь уже вошел, ему не нужно на страницу входа
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
 
+    form = LoginForm()
+    if form.validate_on_submit():
+        # 1. Ищем пользователя в базе данных по введенному логину
+        user = User.query.filter_by(username=form.username.data).first()
+
+        # 2. Проверяем, что пользователь существует И введенный пароль верный
+        #    Для этого используем метод check_password, который мы создали в модели User
+        if user and user.check_password(form.password.data):
+            # 3. Если все верно, "запоминаем" пользователя
+            #    Функция login_user из Flask-Login делает всю магию с сессиями.
+            #    remember=form.remember_me.data - передаем значение галочки "Запомнить меня"
+            login_user(user, remember=form.remember_me.data)
+
+            # Flask-Login может запомнить, куда пользователь хотел попасть до того,
+            # как его отправили на страницу логина. `request.args.get('next')`
+            # позволяет перенаправить его туда после успешного входа.
+            next_page = request.args.get('next')
+            flash(f'Добро пожаловать, {user.username}!', 'success')
+            return redirect(next_page or url_for('main.index'))
+        else:
+            # 4. Если пользователь не найден или пароль неверный - показываем ошибку
+            flash('Неверный логин или пароль. Пожалуйста, попробуйте снова.', 'danger')
+
+    return render_template('auth/login.html', title='Вход', form=form)
+
+
+# --- НОВАЯ ЛОГИКА ДЛЯ ВЫХОДА ---
+@auth_bp.route('/logout')
+@login_required  # Этот декоратор означает, что на эту страницу может зайти только авторизованный пользователь
+def logout():
+    # Функция logout_user() из Flask-Login "забывает" пользователя
+    logout_user()
+    flash('Вы успешно вышли из своего аккаунта.', 'info')
+    return redirect(url_for('main.index'))
