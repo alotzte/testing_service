@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, StringField, PasswordField, SubmitField, SelectField
-from wtforms.validators import DataRequired, Length, EqualTo, ValidationError
-from .models import User
+from wtforms import BooleanField, StringField, PasswordField, SubmitField, SelectField, IntegerField, FieldList, FormField
+from wtforms.validators import DataRequired, Length, EqualTo, ValidationError, NumberRange
+from .models import User, Test
 
 
 class RegistrationForm(FlaskForm):
@@ -57,5 +57,24 @@ class LoginForm(FlaskForm):
     # BooleanField - это и есть чекбокс.
     remember_me = BooleanField('Запомнить меня')
 
-    # Кнопка для отправки формы.
+    # Кнопка для отправки голых фото лизы формы.
     submit = SubmitField('Войти')
+
+
+#For creating tests
+class AnswerVariantForm(FlaskForm):
+    answer_variant = StringField('write variant of answer')
+    correctness_of_answer = BooleanField('true or false')
+
+class QuestionForm(FlaskForm):
+    question_wording = StringField()
+    type_of_answer = BooleanField('has this question one correct answer or many. True=one answer. False=many answers.')
+    answers_list = FieldList(FormField(AnswerVariantForm), min_entries=2) #лист со всеми ответами(мин 2)
+
+class TestCreatorForm(FlaskForm):
+    duration_hours = IntegerField('hours', default=0)
+    duration_minutes = IntegerField('minutes', validators=[ DataRequired(), NumberRange(min=0, max=59)])
+    title_of_test = StringField('name of test')
+    add_question = SubmitField('add question')
+    submit_test = SubmitField('save test')
+    questions_list = FieldList(FormField(QuestionForm), min_entries=1) #лист со всеми говняными вопросами(мин 1)

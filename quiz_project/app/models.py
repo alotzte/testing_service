@@ -1,7 +1,7 @@
 from . import db, login_manager  # Импортируем db и login_manager из __init__.py
 from flask_login import UserMixin  # Импортируем специальный класс для моделей пользователей
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from sqlalchemy.dialects.postgresql import JSON
 
 # Эта функция-загрузчик пользователя нужна для Flask-Login.
 # Она будет вызываться при каждом запросе, чтобы получить объект
@@ -44,3 +44,10 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         """Метод для представления объекта User в виде строки (удобно для отладки)."""
         return f'<User {self.username}>'
+
+class Test(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    test_author = db.Column(db.String(80), unique=True, nullable=False)
+    time_minutes = db.Column(db.Integer)
+    test_title = db.Column(db.String(100))
+    test_questions = db.Column(JSON)
