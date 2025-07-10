@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>New test</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='creating_tests/css/main.css') }}">
+  </head>
+  <body>
+    <div id="main_container">
+    </div>
+    <div id="main_button">
+      <input type="button" name="addBlock" title="Добавить вопрос" value="+" onclick="createQuestion()">
+    </div>
+    <script src="{{ url_for('static', filename='creating_tests/js/main.js') }}"></script>
+  </body>
+</html>

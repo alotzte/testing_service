@@ -48,6 +48,4 @@ class User(db.Model, UserMixin):
 class Test(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     test_author = db.Column(db.String(80), unique=True, nullable=False)
-    time_minutes = db.Column(db.Integer)
-    test_title = db.Column(db.String(100))
-    test_questions = db.Column(JSON)
+    test_info = db.Column(JSON)

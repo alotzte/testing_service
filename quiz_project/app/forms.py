@@ -57,11 +57,11 @@ class LoginForm(FlaskForm):
     # BooleanField - это и есть чекбокс.
     remember_me = BooleanField('Запомнить меня')
 
-    # Кнопка для отправки голых фото лизы формы.
+    # Кнопка для отправки формы.
     submit = SubmitField('Войти')
 
 
-#For creating tests
+#For creating tests pohody nado budet vse delete
 class AnswerVariantForm(FlaskForm):
     answer_variant = StringField('write variant of answer')
     correctness_of_answer = BooleanField('true or false')
@@ -75,6 +75,9 @@ class TestCreatorForm(FlaskForm):
     duration_hours = IntegerField('hours', default=0)
     duration_minutes = IntegerField('minutes', validators=[ DataRequired(), NumberRange(min=0, max=59)])
     title_of_test = StringField('name of test')
-    add_question = SubmitField('add question')
-    submit_test = SubmitField('save test')
-    questions_list = FieldList(FormField(QuestionForm), min_entries=1) #лист со всеми говняными вопросами(мин 1)
+ #   add_question = SubmitField('add question')
+   # submit_test = SubmitField('save test')
+    questions_list = FieldList(FormField(QuestionForm), min_entries=1) #лист со всеми вопросами(мин 1)
+
+class CreateTestForm(FlaskForm):
+    submit = SubmitField('save test')
