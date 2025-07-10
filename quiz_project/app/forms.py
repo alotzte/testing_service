@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, StringField, PasswordField, SubmitField, SelectField, IntegerField, FieldList, FormField
+from wtforms import BooleanField, StringField, PasswordField, SubmitField, SelectField, IntegerField, FieldList, FormField, RadioField
 from wtforms.validators import DataRequired, Length, EqualTo, ValidationError, NumberRange
 from .models import User, Test
 
@@ -28,7 +28,7 @@ class RegistrationForm(FlaskForm):
     ])
 
     # Поле для выбора роли.
-    role = SelectField('Роль', choices=[('user', 'Пользователь'), ('admin', 'Администратор')],
+    role = RadioField('Роль', choices=[('user', 'Пользователь'), ('admin', 'Администратор')],
                        validators=[DataRequired()])
 
     # Кнопка для отправки формы.

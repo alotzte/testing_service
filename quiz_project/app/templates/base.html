@@ -1,67 +1,49 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title or 'Quiz App' }}</title>
-    <!-- Подключаем Bootstrap 5 для стилей -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Подключаем иконки Bootstrap -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <title>{{ title or 'QuizMaster' }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">QuizMaster</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <!--
-                        Flask-Login предоставляет нам объект `current_user`.
-                        `current_user.is_authenticated` вернет True, если пользователь вошел, и False, если нет.
-                        Мы используем это в простом if/else блоке.
-                    -->
+    <div class="page-wrapper">
+        <header class="header">
+            <div class="container">
+                <img src="{{ url_for('static', filename='images/logo-mini-without (1).png') }}" class="mephi"/>
+                <a href="{{ url_for('main.index') }}" class="logo">платформа для онлайн-тестирований</a>
+                <nav class="nav">
                     {% if current_user.is_authenticated %}
-                        <!-- Если пользователь вошел -->
-                        <li class="nav-item">
-                            <span class="navbar-text me-3">
-                                <i class="bi bi-person-circle"></i> Привет, {{ current_user.username }}!
-                            </span>
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn btn-outline-light" href="{{ url_for('auth.logout') }}">Выйти</a>
-                        </li>
+                        <span class="username">{{ current_user.username }}</span>
+                        <a href="{{ url_for('auth.logout') }}" class="btn">Выйти</a>
                     {% else %}
-                        <!-- Если пользователь НЕ вошел -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.login') }}">Войти</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn btn-primary" href="{{ url_for('auth.register') }}">Регистрация</a>
-                        </li>
+                        <a href="{{ url_for('auth.login') }}" class="nav-link">Войти</a>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Зарегистрироваться</a>
                     {% endif %}
-                </ul>
+                </nav>
             </div>
-        </div>
-    </nav>
+        </header>
 
-    <main class="container mt-4">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+        <main class="main-content">
+            <div class="container">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                            <span class="close-btn">&times;</span>
+                        </div>
+                    {% endfor %}
+                {% endwith %}
 
-        {% block content %}{% endblock %}
-    </main>
+                {% block content %}{% endblock %}
+            </div>
+        </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        <footer class="footer">
+            <div class="container">
+                <p>&copy; 2025 гр. Б23-302, Б22-302</p>
+            </div>
+        </footer>
+    </div>
 </body>
 </html>

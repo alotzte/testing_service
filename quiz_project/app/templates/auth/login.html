@@ -1,54 +1,41 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card mt-5">
-            <div class="card-body">
-                <h2 class="card-title text-center mb-4">{{ title }}</h2>
-                <form method="POST" action="">
-                    {{ form.hidden_tag() }} <!-- Обязательный тег для CSRF-защиты -->
-
-                    <div class="mb-3">
-                        {{ form.username.label(class="form-label") }}
-                        {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else ""), autocomplete="username") }}
-                        {% if form.username.errors %}
-                            <div class="invalid-feedback">
-                                {% for error in form.username.errors %}
-                                    <span>{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="mb-3">
-                        {{ form.password.label(class="form-label") }}
-                        {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), autocomplete="current-password") }}
-                        {% if form.password.errors %}
-                            <div class="invalid-feedback">
-                                {% for error in form.password.errors %}
-                                    <span>{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="mb-3 form-check">
-                        {{ form.remember_me(class="form-check-input") }}
-                        {{ form.remember_me.label(class="form-check-label") }}
-                    </div>
-
-                    <div class="d-grid">
-                        {{ form.submit(class="btn btn-primary") }}
-                    </div>
-                </form>
-                <div class="text-center mt-3">
-                    <small class="text-muted">
-                        Еще нет аккаунта? <a href="{{ url_for('auth.register') }}">Зарегистрироваться</a>
-                    </small>
-                </div>
-            </div>
+<div class="login-box">
+    <h2 class="login-title">Вход</h2>
+            
+    <form method="POST" class="login-form">
+        {{ form.hidden_tag() }}
+                
+        <!-- Поле username -->
+        <div class="form-group">
+            <label>Логин</label>
+            {{ form.username(class="form-input" + (" input-error" if form.username.errors else ""), autocomplete="username") }}
+            {% for error in form.username.errors %}
+                <div class="error-message">{{ error }}</div>
+            {% endfor %}
         </div>
+                
+        <!-- Поле password -->
+        <div class="form-group">
+            <label>Пароль</label>
+            {{ form.password(class="form-input" + (" input-error" if form.password.errors else ""), autocomplete="current-password") }}
+            {% for error in form.password.errors %}
+                <div class="error-message">{{ error }}</div>
+            {% endfor %}
+        </div>
+                
+        <!-- Чекбокс "Запомнить меня" -->
+        <div class="form-remember">
+            {{ form.remember_me() }}
+            <label>Запомнить меня</label>
+        </div>
+                
+        <button type="submit" class="submit-btn">Войти</button>
+    </form>
+            
+    <div class="form-footer">
+        Еще нет аккаунта? <a href="{{ url_for('auth.register') }}">Зарегистрироваться</a>
     </div>
 </div>
 {% endblock %}
