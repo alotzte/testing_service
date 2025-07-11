@@ -158,5 +158,89 @@ function renumberBlocks() {
   updateDeleteButtons();
 }
 
+// Add event listener to save button
+document.addEventListener('DOMContentLoaded', function() {
+  const saveButton = document.getElementById('save-test');
+  if (saveButton) {
+    saveButton.addEventListener('click', function() {
+      try {
+        // Collect all test data
+        const testData = {
+          name: document.getElementById('testName').value,
+          questions: []
+        };
+        
+        // Get all question blocks
+        const blocks = document.querySelectorAll('.block');
+        blocks.forEach((block, blockIndex) => {
+          const questionText = block.querySelector('.question').value || '';
+          const answers = [];
+          const answerInputs = block.querySelectorAll('.answer');
+          
+          let correctAnswerIndex = -1;
+          
+          answerInputs.forEach((answerInput, index) => {
+            const answerText = answerInput.querySelector('input[type="text"]').value || '';
+            const isSelected = answerInput.querySelector('input[type="radio"]').checked;
+            
+            answers.push({
+              text: answerText,
+              isCorrect: isSelected
+            });
+            
+            if (isSelected) {
+              correctAnswerIndex = index;
+            }
+          });
+          
+          testData.questions.push({
+            question: questionText,
+            answers: answers,
+            correctAnswerIndex: correctAnswerIndex
+          });
+        });
+        
+        // Проверка на пустые значения
+        if (!testData.name) {
+          testData.name = "Новый тест";
+        }
+        
+        // Проверка данных перед отправкой
+        const jsonString = JSON.stringify(testData);
+        console.log("JSON to send:", jsonString);
+        
+        // Send data to server
+        fetch('/creator', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: jsonString
+        })
+        .then(response => {
+          console.log("Response status:", response.status);
+          return response.json();
+        })
+        .then(data => {
+          console.log("Response data:", data);
+          if (data.success) {
+            alert('Тест успешно сохранен!');
+            window.location.href = '/admin/dashboard';
+          } else {
+            alert('Произошла ошибка при сохранении теста: ' + data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Произошла ошибка при сохранении теста: ' + error);
+        });
+      } catch (error) {
+        console.error("Error preparing data:", error);
+        alert('Ошибка при подготовке данных: ' + error.message);
+      }
+    });
+  }
+});
 
+// Create the first question when the page loads
 createQuestion();

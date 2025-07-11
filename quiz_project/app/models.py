@@ -46,6 +46,7 @@ class User(db.Model, UserMixin):
         return f'<User {self.username}>'
 
 class Test(db.Model):
+    __tablename__ = 'tests'  # Изменяем имя таблицы на 'tests'
     id = db.Column(db.Integer, primary_key=True)
-    test_author = db.Column(db.String(80), unique=True, nullable=False)
-    test_info = db.Column(JSON)
+    test_author = db.Column(db.String(80), nullable=False)
+    test_info = db.Column(db.Text)  # Для SQLite используем Text вместо JSON

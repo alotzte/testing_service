@@ -2,25 +2,342 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>New test</title>
+    <title>Создание нового теста</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='creating_tests/css/main.css') }}">
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+      }
+      
+      #header {
+        background-color: #2c3e50;
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      
+      .logo {
+        display: flex;
+        align-items: center;
+      }
+      
+      .logo img {
+        height: 40px;
+        margin-right: 10px;
+      }
+      
+      .platform-name {
+        font-size: 18px;
+        font-weight: bold;
+      }
+      
+      .user-controls {
+        display: flex;
+        align-items: center;
+      }
+      
+      .username {
+        margin-right: 15px;
+      }
+      
+      .logout-btn {
+        background-color: transparent;
+        color: white;
+        border: 1px solid white;
+        padding: 5px 15px;
+        border-radius: 4px;
+        text-decoration: none;
+      }
+      
+      .logout-btn:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+      
+      .page-title {
+        font-size: 28px;
+        color: #333;
+        margin: 30px 0;
+        text-align: center;
+      }
+      
+      #main {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: white;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      
+      .actions {
+        display: flex;
+        justify-content: space-between;
+        margin: 20px 0;
+      }
+      
+      .submit-btn {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      
+      .submit-btn:hover {
+        background-color: #45a049;
+      }
+      
+      .back-btn {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        font-size: 16px;
+      }
+      
+      .back-btn:hover {
+        background-color: #5a6268;
+      }
+      
+      #title {
+        margin-bottom: 20px;
+      }
+      
+      #testName {
+        width: 100%;
+        padding: 10px;
+        font-size: 18px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      
+      #main_button {
+        text-align: center;
+        margin-top: 20px;
+      }
+      
+      #addBlock {
+        width: 40px;
+        height: 40px;
+        font-size: 24px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+      
+      #addBlock:hover {
+        background-color: #45a049;
+      }
+      
+      .footer {
+        text-align: center;
+        padding: 20px;
+        background-color: #2c3e50;
+        color: white;
+        margin-top: 40px;
+      }
+      
+      /* Modal styles */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+      
+      .modal-content {
+        background-color: white;
+        margin: 15% auto;
+        padding: 20px;
+        border-radius: 5px;
+        width: 400px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      }
+      
+      .modal-title {
+        margin-top: 0;
+        color: #333;
+      }
+      
+      .modal-buttons {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
+      }
+      
+      .modal-btn {
+        padding: 8px 16px;
+        margin-left: 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      
+      .modal-btn-cancel {
+        background-color: #6c757d;
+        color: white;
+      }
+      
+      .modal-btn-confirm {
+        background-color: #dc3545;
+        color: white;
+      }
+    </style>
   </head>
   <body>
-
     <div id='header'>
-        <button type="submit" class="submit-btn">Зарегистрироваться</button>
+      <div class="logo">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="МИСРИ" onerror="this.src='https://via.placeholder.com/40x40?text=МИСРИ'">
+        <span class="platform-name">платформа для онлайн-тестирований</span>
+      </div>
+      <div class="user-controls">
+        <span class="username">{{ current_user.username }}</span>
+        <a href="{{ url_for('auth.logout') }}" class="logout-btn">Выйти</a>
+      </div>
     </div>
 
+    <h1 class="page-title">Создание нового теста</h1>
+    
     <div id="main">
+      <div class="actions">
+        <button id="save-test" class="submit-btn">Сохранить тест</button>
+        <button id="back-btn" class="back-btn">Вернуться на главную</button>
+      </div>
+      
       <div id='title'>
         <input id="testName" type="text" value="Новый тест" placeholder="Название теста">
       </div>
+      
       <div id="main_container"></div>
 
       <div id="main_button">
         <input type="button" id="addBlock" title="Добавить вопрос" value="+" onclick="createQuestion()">
       </div>
     </div>
+    
+    <!-- Модальное окно для подтверждения возврата -->
+    <div id="confirmModal" class="modal">
+      <div class="modal-content">
+        <h3 class="modal-title">Подтверждение</h3>
+        <p>Вы уверены, что хотите вернуться? Все несохраненные изменения будут утеряны.</p>
+        <div class="modal-buttons">
+          <button id="cancelBtn" class="modal-btn modal-btn-cancel">Отмена</button>
+          <button id="confirmBtn" class="modal-btn modal-btn-confirm">Да, вернуться</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer">
+      © 2025 гр. Б23-302, Б22-302
+    </div>
+    
     <script src="{{ url_for('static', filename='creating_tests/js/main.js') }}"></script>
+    <script>
+      // Обработка модального окна подтверждения
+      const modal = document.getElementById("confirmModal");
+      const backBtn = document.getElementById("back-btn");
+      const cancelBtn = document.getElementById("cancelBtn");
+      const confirmBtn = document.getElementById("confirmBtn");
+      
+      // Показать модальное окно при нажатии на кнопку "Вернуться"
+      backBtn.addEventListener("click", function() {
+        modal.style.display = "block";
+      });
+      
+      // Скрыть модальное окно при нажатии на "Отмена"
+      cancelBtn.addEventListener("click", function() {
+        modal.style.display = "none";
+      });
+      
+      // Перейти на главную страницу при подтверждении
+      confirmBtn.addEventListener("click", function() {
+        window.location.href = "{{ url_for('main.index') }}";
+      });
+      
+      // Закрыть модальное окно при клике вне его
+      window.addEventListener("click", function(event) {
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      });
+      
+      // Обработка сохранения теста
+      document.getElementById('save-test').addEventListener('click', function() {
+        // Collect all test data
+        const testData = {
+          name: document.getElementById('testName').value,
+          questions: []
+        };
+        
+        // Get all question blocks
+        const blocks = document.querySelectorAll('.block');
+        blocks.forEach((block, blockIndex) => {
+          const questionText = block.querySelector('.question').value;
+          const answers = [];
+          const answerInputs = block.querySelectorAll('.answer');
+          
+          let correctAnswerIndex = -1;
+          
+          answerInputs.forEach((answerInput, index) => {
+            const answerText = answerInput.querySelector('input[type="text"]').value;
+            const isSelected = answerInput.querySelector('input[type="radio"]').checked;
+            
+            answers.push({
+              text: answerText,
+              isCorrect: isSelected
+            });
+            
+            if (isSelected) {
+              correctAnswerIndex = index;
+            }
+          });
+          
+          testData.questions.push({
+            question: questionText,
+            answers: answers,
+            correctAnswerIndex: correctAnswerIndex
+          });
+        });
+        
+        // Send data to server
+        fetch('/creator', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(testData)
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert('Тест успешно сохранен!');
+            window.location.href = "{{ url_for('main.index') }}";
+          } else {
+            alert('Произошла ошибка при сохранении теста: ' + data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Произошла ошибка при сохранении теста');
+        });
+      });
+    </script>
   </body>
 </html>

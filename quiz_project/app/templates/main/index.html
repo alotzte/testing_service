@@ -1,23 +1,66 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container text-center mt-5">
-    <div class="jumbotron">
-        <h1 class="display-4">Добро пожаловать, {{ current_user.username }}!</h1>
-        <p class="lead">Вы успешно вошли в систему QuizMaster.</p>
-        <hr class="my-4">
-        <p>На данный момент это главная страница вашего аккаунта. Скоро здесь появятся доступные для вас тесты.</p>
+<div class="welcome-section">
+    <h1>Добро пожаловать, {{ current_user.username }}!</h1>
+    <p>Вы успешно вошли в систему QuizMaster.</p>
+    <hr>
+    <p>На данный момент это главная страница вашего аккаунта. Скоро здесь появятся доступные для вас тесты.</p>
+    
+    {% if current_user.role == 'admin' %}
+        <p>Вы вошли как <strong>администратор</strong>. Вы можете создавать и управлять тестами.</p>
         
-        {# Это блок для администраторов. Он будет виден только пользователям с ролью 'admin' #}
-        {% if current_user.role == 'admin' %}
-            <div class="alert alert-info mt-4">
-                Вы вошли как <strong>администратор</strong>. Вы можете перейти в панель администратора для создания и управления тестами.
-            </div>
-            <a class="btn btn-success btn-lg" href="#" role="button">Перейти в Админ-панель</a>
-            {# Ссылка пока никуда не ведет, мы реализуем это на следующем этапе #}
-        {% else %}
-             <a class="btn btn-primary btn-lg" href="#" role="button">Найти тест</a>
-        {% endif %}
-    </div>
+        <div class="admin-actions">
+            <a href="{{ url_for('creating_tests.create_test') }}" class="btn btn-primary">Создать новый тест</a>
+            <a href="{{ url_for('creating_tests.my_tests') }}" class="btn btn-primary">Мои тесты</a>
+        </div>
+    {% endif %}
 </div>
+
+<style>
+    .welcome-section {
+        margin-top: 50px;
+        text-align: left;
+    }
+    
+    .welcome-section h1 {
+        font-size: 28px;
+        margin-bottom: 20px;
+        color: #333;
+    }
+    
+    .welcome-section p {
+        font-size: 16px;
+        margin-bottom: 15px;
+        color: #555;
+    }
+    
+    .welcome-section hr {
+        border: none;
+        border-top: 1px solid #ddd;
+        margin: 20px 0;
+    }
+    
+    .admin-actions {
+        margin-top: 30px;
+        display: flex;
+        gap: 15px;
+    }
+    
+    .btn-primary {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #2c3e50;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-primary:hover {
+        background-color: #34495e;
+    }
+</style>
 {% endblock %}
