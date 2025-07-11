@@ -9,6 +9,9 @@ creating_tests_bp = Blueprint('creating_tests', __name__, template_folder='templ
 
 @creating_tests_bp.route('/creator', methods=['GET', 'POST'])
 def create_test():
+ # form = CreateTestForm()
+  print(request)
+ #   print("gdgdfgdf")
   if request.is_json:
     received_data = request.get_json()
     if received_data:

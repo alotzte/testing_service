@@ -6,10 +6,20 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='creating_tests/css/main.css') }}">
   </head>
   <body>
-    <div id="main_container">
+
+    <div id='header'>
+        <button type="submit" class="submit-btn">Зарегистрироваться</button>
     </div>
-    <div id="main_button">
-      <input type="button" name="addBlock" title="Добавить вопрос" value="+" onclick="createQuestion()">
+
+    <div id="main">
+      <div id='title'>
+        <input id="testName" type="text" value="Новый тест" placeholder="Название теста">
+      </div>
+      <div id="main_container"></div>
+
+      <div id="main_button">
+        <input type="button" id="addBlock" title="Добавить вопрос" value="+" onclick="createQuestion()">
+      </div>
     </div>
     <script src="{{ url_for('static', filename='creating_tests/js/main.js') }}"></script>
   </body>
