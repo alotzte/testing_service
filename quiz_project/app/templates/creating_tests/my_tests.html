@@ -280,6 +280,9 @@
     </div>
     
     <script>
+      // Сохраняем URL для удаления теста
+      const deleteTestUrl = "{{ url_for('creating_tests.delete_test', test_id=0) }}".replace('0', '');
+      
       // Обработка модального окна подтверждения удаления
       const modal = document.getElementById("deleteModal");
       const cancelBtn = document.getElementById("cancelDeleteBtn");
@@ -303,13 +306,21 @@
       // Удалить тест при подтверждении
       confirmBtn.addEventListener("click", function() {
         if (currentTestId) {
-          fetch(`/delete-test/${currentTestId}`, {
+          // Используем полный URL для удаления теста
+          fetch(deleteTestUrl + currentTestId, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-            }
+              'X-CSRFToken': '{{ csrf_token() if csrf_token else "" }}' // Добавляем CSRF-токен, если он доступен
+            },
+            credentials: 'same-origin' // Включаем отправку куки для аутентификации
           })
-          .then(response => response.json())
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Ошибка сети: ' + response.status);
+            }
+            return response.json();
+          })
           .then(data => {
             if (data.success) {
               // Удаляем карточку теста из DOM
@@ -336,7 +347,7 @@
           })
           .catch(error => {
             console.error('Error:', error);
-            alert('Произошла ошибка при удалении теста');
+            alert('Произошла ошибка при удалении теста: ' + error.message);
             modal.style.display = "none";
             currentTestId = null;
           });
