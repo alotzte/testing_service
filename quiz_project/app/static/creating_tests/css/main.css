@@ -225,3 +225,42 @@ body {
     background-color: #dc3545;
     color: white;
 }
+
+/* Добавьте эти стили в ваш CSS-файл */
+.select-container {
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+  min-width: 100px;
+}
+
+.select-label {
+  margin-right: 5px;
+  font-size: 14px;
+  color: #555;
+}
+
+.correct-answer {
+  background-color: #e8f5e9;
+  border-color: #4CAF50;
+}
+
+/* Стиль для выделения ошибок валидации */
+.error-highlight {
+  border-color: #f44336;
+  background-color: #ffebee;
+}
+
+.validation-message {
+  color: #f44336;
+  font-size: 14px;
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #ffebee;
+  border-radius: 4px;
+  display: none;
+}
+
+.validation-message.show {
+  display: block;
+}

@@ -107,6 +107,22 @@ function createAnswer(form, block) {
   select.type = 'radio';
   select.name = 'correctAnswer' + block.id.replace('block', '');
   select.className = 'select';
+  // Добавляем обработчик события для выделения правильного ответа
+  select.addEventListener('change', function() {
+    // Найти все текстовые поля в этом блоке
+    const textInputs = block.querySelectorAll('.answer input[type="text"]');
+    textInputs.forEach(input => {
+      input.classList.remove('correct-answer');
+    });
+    
+    // Выделить текстовое поле рядом с выбранной радиокнопкой
+    if (this.checked) {
+      const textInput = this.parentElement.querySelector('input[type="text"]');
+      if (textInput) {
+        textInput.classList.add('correct-answer');
+      }
+    }
+  });
 
   var newInput = document.createElement('input');
   newInput.type = 'text';
@@ -117,9 +133,7 @@ function createAnswer(form, block) {
   deleteButton.textContent = "×";
   deleteButton.onclick = function() {
     form.removeChild(answer);
-
     updatePlaceholders(block);
-
     updateDeleteButtons();
   };
 
@@ -129,9 +143,7 @@ function createAnswer(form, block) {
 
   form.appendChild(answer);
 
-
   updatePlaceholders(block);
-
   updateDeleteButtons();
 }
 
@@ -156,6 +168,76 @@ function renumberBlocks() {
   blockCount = blocks.length;
 
   updateDeleteButtons();
+}
+
+// Добавляем новую функцию для визуального выделения правильного ответа
+function updateCorrectAnswerHighlight(block) {
+  const answers = block.querySelectorAll('.answer');
+  
+  answers.forEach(answer => {
+    const radio = answer.querySelector('input[type="radio"]');
+    const textInput = answer.querySelector('input[type="text"]');
+    
+    if (radio.checked) {
+      textInput.classList.add('correct-answer');
+    } else {
+      textInput.classList.remove('correct-answer');
+    }
+  });
+}
+
+// Обновляем функцию сохранения теста, чтобы добавить проверку на выбор правильного ответа
+function validateTest() {
+  const blocks = document.querySelectorAll('.block');
+  let isValid = true;
+  let errorMessage = '';
+  
+  // Проверка названия теста
+  const testName = document.getElementById('testName').value.trim();
+  if (!testName) {
+    return { isValid: false, errorMessage: 'Название теста не может быть пустым' };
+  }
+  
+  // Проверка вопросов и ответов
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
+    const questionText = block.querySelector('.question').value.trim();
+    
+    // Проверка текста вопроса
+    if (!questionText) {
+      return { isValid: false, errorMessage: `Вопрос ${i + 1} не может быть пустым` };
+    }
+    
+    const answers = block.querySelectorAll('.answer');
+    
+    // Проверка количества ответов
+    if (answers.length < 2) {
+      return { isValid: false, errorMessage: `Вопрос ${i + 1} должен иметь как минимум 2 варианта ответа` };
+    }
+    
+    // Проверка текста ответов и наличия выбранного правильного ответа
+    let hasCorrectAnswer = false;
+    for (let j = 0; j < answers.length; j++) {
+      const answer = answers[j];
+      const answerText = answer.querySelector('input[type="text"]').value.trim();
+      
+      // Проверка текста ответа
+      if (!answerText) {
+        return { isValid: false, errorMessage: `Ответ ${j + 1} в вопросе ${i + 1} не может быть пустым` };
+      }
+      
+      // Проверка наличия правильного ответа
+      if (answer.querySelector('input[type="radio"]').checked) {
+        hasCorrectAnswer = true;
+      }
+    }
+    
+    if (!hasCorrectAnswer) {
+      return { isValid: false, errorMessage: `Для вопроса ${i + 1} не выбран правильный ответ` };
+    }
+  }
+  
+  return { isValid: true, errorMessage: '' };
 }
 
 // Add event listener to save button
