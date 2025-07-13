@@ -14,7 +14,13 @@
                 <div class="error-message">{{ error }}</div>
             {% endfor %}
         </div>
-
+        <div class="form-group">
+            <label>Группа(оставьте пустой если вы препод)</label>
+            {{ form.group(class="form-control" + (" is-invalid" if form.group.errors else "")) }}
+            {% for error in form.group.errors %}
+                <div class="error-message">{{ error }}</div>
+            {% endfor %}
+        </div>
         <div class="form-group">
             <label>Пароль</label>
             {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else "")) }}
@@ -40,7 +46,7 @@
         {% endfor %}
     </div>
     <br>
-
+        
         <button type="submit" class="submit-btn">Зарегистрироваться</button>
     </form>
 

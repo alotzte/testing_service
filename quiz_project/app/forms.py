@@ -1,8 +1,16 @@
 from flask_wtf import FlaskForm
 from wtforms import BooleanField, StringField, PasswordField, SubmitField, SelectField, IntegerField, FieldList, FormField, RadioField
-from wtforms.validators import DataRequired, Length, EqualTo, ValidationError, NumberRange
+from wtforms.validators import DataRequired, Length, EqualTo, ValidationError, NumberRange, Optional
 from .models import User, Test
 
+def validate_group(form, field):  # form и field - обязательные аргументы для валидатора WTForms
+    group = field.data
+    role = form.role.data
+    my_list = list(group)
+    if role == "admin":
+        raise ValidationError("Нельзя вводить группу для администратора.")
+    if len(my_list) != 7 or my_list[0] not in ("Б", "М", "С") or my_list[3] != "-":
+        raise ValidationError("Введенная группа некорректна")
 
 class RegistrationForm(FlaskForm):
     """Класс для формы регистрации."""
@@ -33,7 +41,8 @@ class RegistrationForm(FlaskForm):
 
     # Кнопка для отправки формы.
     submit = SubmitField('Зарегистрироваться')
-
+   # group = StringField("ggfg")
+    group = StringField("gfdgdf", validators=[validate_group])
     def validate_username(self, username):
         """
         Кастомный валидатор для проверки уникальности имени пользователя.
@@ -43,7 +52,7 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(username=username.data).first()
         if user:
             raise ValidationError('Это имя пользователя уже занято. Пожалуйста, выберите другое.')
-
+    
 
 class LoginForm(FlaskForm):
     """Класс для формы входа."""

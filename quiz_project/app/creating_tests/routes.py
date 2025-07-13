@@ -46,7 +46,6 @@ def create_test():
                 
                 # Store the author of the test
                 received_data['author'] = current_user.username
-                
                 # Convert to JSON string for storage
                 json_string_to_store = json.dumps(received_data, indent=2, ensure_ascii=False)
                 print("JSON to store:", json_string_to_store)

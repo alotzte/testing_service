@@ -239,7 +239,19 @@ function validateTest() {
   
   return { isValid: true, errorMessage: '' };
 }
+function addGroupField() {
+        const groupContainer = document.getElementById("groupContainer");
+        const newGroupField = document.createElement("div");
+        newGroupField.className = "groupField";
+          newGroupField.innerHTML = `
+    <label>Группа:</label>
+    <input type="text" class="groupInput" name="groups[]">
+  `;
 
+  groupContainer.appendChild(newGroupField);
+}
+          // Собираем данные теста
+  
 // Add event listener to save button
 document.addEventListener('DOMContentLoaded', function() {
   const saveButton = document.getElementById('save-test');
@@ -248,9 +260,15 @@ document.addEventListener('DOMContentLoaded', function() {
       try {
         // Collect all test data
         const testData = {
-          name: document.getElementById('testName').value,
-          questions: []
+        name: document.getElementById('testName').value,
+        questions: [],
+        groups: []  // Инициализируем массив groups
         };
+
+  // Получаем значения из полей групп
+  const groupInputs = document.querySelectorAll(".groupInput");
+  const groups = Array.from(groupInputs).map(input => input.value);
+  testData.groups = groups;  // Добавляем массив groups в testData
         
         // Get all question blocks
         const blocks = document.querySelectorAll('.block');

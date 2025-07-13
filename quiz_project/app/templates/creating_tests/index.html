@@ -93,13 +93,22 @@
         </div>
       </div>
     </div>
-    
+      <div id="groupContainer">
+    <div class="groupField">
+      <label>Группа:</label>
+      <input type="text" class="groupInput" name="groups[]">
+    </div>
+  </div>
+  <button type="button" onclick="addGroupField()">Добавить группу</button><br><br>
+  
     <div class="footer">
       © 2025 гр. Б23-302, Б22-302
     </div>
     
     <script src="{{ url_for('static', filename='creating_tests/js/main.js') }}"></script>
     <script>
+      
+
       // Определяем функцию валидации прямо в шаблоне
       function validateTest() {
         const blocks = document.querySelectorAll('.block');
@@ -218,9 +227,15 @@
         
         // Собираем данные теста
         const testData = {
-          name: document.getElementById('testName').value,
-          questions: []
+        name: document.getElementById('testName').value,
+        questions: [],
+        groups: []  // Инициализируем массив groups
         };
+
+  // Получаем значения из полей групп
+  const groupInputs = document.querySelectorAll(".groupInput");
+  const groups = Array.from(groupInputs).map(input => input.value);
+  testData.groups = groups;  // Добавляем массив groups в testData
         
         // Получаем все блоки вопросов
         const blocks = document.querySelectorAll('.block');
@@ -275,5 +290,6 @@
         });
       });
     </script>
+    
   </body>
 </html>
