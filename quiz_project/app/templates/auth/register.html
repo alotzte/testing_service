@@ -14,13 +14,15 @@
                 <div class="error-message">{{ error }}</div>
             {% endfor %}
         </div>
-        <div class="form-group">
-            <label>Группа(оставьте пустой если вы препод)</label>
+        
+        <div class="form-group" id="group-field">
+            <label>Группа (оставьте пустой если вы препод)</label>
             {{ form.group(class="form-control" + (" is-invalid" if form.group.errors else "")) }}
             {% for error in form.group.errors %}
                 <div class="error-message">{{ error }}</div>
             {% endfor %}
         </div>
+        
         <div class="form-group">
             <label>Пароль</label>
             {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else "")) }}
@@ -51,4 +53,30 @@
     </form>
 
 </div>
+
+<script>
+    // Скрываем/показываем поле группы в зависимости от выбранной роли
+    document.addEventListener('DOMContentLoaded', function() {
+        const roleInputs = document.querySelectorAll('input[name="role"]');
+        const groupField = document.getElementById('group-field');
+        
+        function updateGroupVisibility() {
+            const adminSelected = document.querySelector('input[value="admin"]:checked') !== null;
+            if (adminSelected) {
+                groupField.style.display = 'none';
+                document.querySelector('input[name="group"]').value = '';
+            } else {
+                groupField.style.display = 'block';
+            }
+        }
+        
+        // Проверяем при загрузке страницы
+        updateGroupVisibility();
+        
+        // Добавляем обработчик события для радиокнопок роли
+        roleInputs.forEach(input => {
+            input.addEventListener('change', updateGroupVisibility);
+        });
+    });
+</script>
 {% endblock %}

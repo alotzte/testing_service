@@ -6,11 +6,15 @@ from .models import User, Test
 def validate_group(form, field):  # form и field - обязательные аргументы для валидатора WTForms
     group = field.data
     role = form.role.data
-    my_list = list(group)
+    
+    # Если роль администратор, устанавливаем пустую группу
     if role == "admin":
-        raise ValidationError("Нельзя вводить группу для администратора.")
-    if len(my_list) != 7 or my_list[0] not in ("Б", "М", "С") or my_list[3] != "-":
-        raise ValidationError("Введенная группа некорректна")
+        field.data = ""
+        return
+    
+    # Если пользователь не админ и группа не пустая, проверяем формат
+    if group and (len(group) != 7 or group[0] not in ("Б", "М", "С") or group[3] != "-"):
+        raise ValidationError("Введенная группа некорректна. Формат: Б00-000")
 
 class RegistrationForm(FlaskForm):
     """Класс для формы регистрации."""
@@ -39,10 +43,12 @@ class RegistrationForm(FlaskForm):
     role = RadioField('Роль', choices=[('user', 'Пользователь'), ('admin', 'Администратор')],
                        validators=[DataRequired()])
 
+    # Поле для ввода группы
+    group = StringField("Группа (например, Б23-302)", validators=[validate_group])
+
     # Кнопка для отправки формы.
     submit = SubmitField('Зарегистрироваться')
    # group = StringField("ggfg")
-    group = StringField("gfdgdf", validators=[validate_group])
     def validate_username(self, username):
         """
         Кастомный валидатор для проверки уникальности имени пользователя.

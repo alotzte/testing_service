@@ -14,14 +14,16 @@ auth_bp = Blueprint('auth', __name__, template_folder='templates')
 def register():
     """Обрабатывает регистрацию нового пользователя."""
     form = RegistrationForm()
-    print(form.group.data)
-   # print(list(form.group.data))
+    
     if form.validate_on_submit():
+        # Если роль администратор, устанавливаем пустую группу
+        group_value = "" if form.role.data == "admin" else form.group.data
+        
         # Создаем нового пользователя
         new_user = User(
             username=form.username.data,
             role=form.role.data,
-            group=form.group.data
+            group=group_value
         )
         new_user.set_password(form.password.data)
 

@@ -48,8 +48,21 @@ def create_app():
         # Импортируем модели, чтобы они были доступны для создания таблиц
         from .models import User, Test
         
-        # Создаем все таблицы, если они не существуют
-        db.create_all()
+        # Пересоздаем все таблицы для обновления структуры
+        db.drop_all()  # Удаляем все существующие таблицы
+        db.create_all()  # Создаем таблицы заново с новой структурой
+        
+        # Создаем тестового администратора после пересоздания таблиц
+        try:
+            from .models import User
+            admin = User.query.filter_by(username='admin').first()
+            if not admin:
+                admin = User(username='admin', role='admin', group='')
+                admin.set_password('admin123')
+                db.session.add(admin)
+                db.session.commit()
+        except Exception as e:
+            print(f"Ошибка при создании тестового администратора: {e}")
 
         # Импортируем и регистрируем Blueprints
         from .main.routes import main_bp
