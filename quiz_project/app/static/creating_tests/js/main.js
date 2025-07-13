@@ -18,6 +18,12 @@ function updatePlaceholders(block) {
   answers.forEach((answer, index) => {
     answer.placeholder = "Вариант " + (index + 1);
   });
+  
+  // Для текстового ответа
+  const textAnswer = block.querySelector('.text-answer textarea');
+  if (textAnswer) {
+    textAnswer.placeholder = "Место для развернутого ответа";
+  }
 }
 
 function updateDeleteButtons() {
@@ -29,16 +35,19 @@ function updateDeleteButtons() {
   }
 
   document.querySelectorAll('.block').forEach(block => {
-    const answerDeleteButtons = block.querySelectorAll('.deleteButton');
-    const answersCount = block.querySelectorAll('.answer').length;
+    // Только для вопросов с вариантами ответов
+    if (block.querySelector('.question-type-select').value === 'multiple_choice') {
+      const answerDeleteButtons = block.querySelectorAll('.deleteButton');
+      const answersCount = block.querySelectorAll('.answer').length;
 
-    answerDeleteButtons.forEach(btn => {
-      if (answersCount <= 1) {
-        btn.classList.add('hidden');
-      } else {
-        btn.classList.remove('hidden');
-      }
-    });
+      answerDeleteButtons.forEach(btn => {
+        if (answersCount <= 2) {
+          btn.classList.add('hidden');
+        } else {
+          btn.classList.remove('hidden');
+        }
+      });
+    }
   });
 }
 
@@ -57,19 +66,60 @@ function createQuestion() {
   question.addEventListener('input', function() {
     autoResize(this);
   });
-
+  
+  // Добавляем селектор типа вопроса
+  var typeSelectContainer = document.createElement('div');
+  typeSelectContainer.className = "question-type-container";
+  
+  var typeSelectLabel = document.createElement('label');
+  typeSelectLabel.textContent = "Тип вопроса: ";
+  
+  var typeSelect = document.createElement('select');
+  typeSelect.className = "question-type-select";
+  
+  var optionMultipleChoice = document.createElement('option');
+  optionMultipleChoice.value = "multiple_choice";
+  optionMultipleChoice.textContent = "С вариантами ответа";
+  
+  var optionTextAnswer = document.createElement('option');
+  optionTextAnswer.value = "text_answer";
+  optionTextAnswer.textContent = "С развернутым ответом";
+  
+  typeSelect.appendChild(optionMultipleChoice);
+  typeSelect.appendChild(optionTextAnswer);
+  
+  typeSelectContainer.appendChild(typeSelectLabel);
+  typeSelectContainer.appendChild(typeSelect);
+  
+  // Создаем контейнер для ответов
+  var answersContainer = document.createElement('div');
+  answersContainer.className = "answers-container";
+  
+  // Создаем контейнер для текстового ответа
+  var textAnswerContainer = document.createElement('div');
+  textAnswerContainer.className = "text-answer";
+  textAnswerContainer.style.display = "none";
+  
+  var textAnswerArea = document.createElement('textarea');
+  textAnswerArea.className = "text-answer-area";
+  textAnswerArea.placeholder = "Место для развернутого ответа";
+  textAnswerArea.rows = 5;
+  
+  textAnswerContainer.appendChild(textAnswerArea);
+  
+  // Создаем кнопку добавления ответа
   var plusButton = document.createElement('button');
   plusButton.className = "plusButton";
   plusButton.textContent = "Добавить ответ";
   plusButton.onclick = function() {
-    createAnswer(form, block);
+    createAnswer(answersContainer, block);
   };
-
+  
+  // Создаем кнопку удаления вопроса
   var deleteQuestion = document.createElement('button');
   deleteQuestion.className = 'deleteQuestion';
   deleteQuestion.textContent = "Удалить вопрос";
   deleteQuestion.onclick = function() {
-
     const index = questionBlocks.indexOf(block.id);
     if (index > -1) {
       questionBlocks.splice(index, 1);
@@ -77,7 +127,6 @@ function createQuestion() {
     main_container.removeChild(block);
 
     renumberBlocks();
-
     updateDeleteButtons();
   };
 
@@ -86,20 +135,45 @@ function createQuestion() {
   footbar.appendChild(plusButton);
   footbar.appendChild(deleteQuestion);
 
+  // Обработчик изменения типа вопроса
+  typeSelect.addEventListener('change', function() {
+    if (this.value === 'multiple_choice') {
+      answersContainer.style.display = "block";
+      textAnswerContainer.style.display = "none";
+      plusButton.style.display = "inline-block"; // Показываем кнопку "Добавить ответ"
+      
+      // Если нет вариантов ответа, добавляем два
+      if (answersContainer.querySelectorAll('.answer').length === 0) {
+        createAnswer(answersContainer, block);
+        createAnswer(answersContainer, block);
+      }
+    } else {
+      answersContainer.style.display = "none";
+      textAnswerContainer.style.display = "block";
+      plusButton.style.display = "none"; // Скрываем кнопку "Добавить ответ"
+    }
+  });
+
   form.appendChild(question);
+  form.appendChild(typeSelectContainer);
+  form.appendChild(answersContainer);
+  form.appendChild(textAnswerContainer);
+  
   block.appendChild(form);
   block.appendChild(footbar);
 
   main_container.appendChild(block);
   autoResize(question);
-  createAnswer(form, block);
+  
+  // По умолчанию создаем два варианта ответа для вопроса с выбором
+  createAnswer(answersContainer, block);
+  createAnswer(answersContainer, block);
 
   updatePlaceholders(block);
-
   updateDeleteButtons();
 }
 
-function createAnswer(form, block) {
+function createAnswer(container, block) {
   var answer = document.createElement('div');
   answer.className = 'answer';
 
@@ -107,6 +181,7 @@ function createAnswer(form, block) {
   select.type = 'radio';
   select.name = 'correctAnswer' + block.id.replace('block', '');
   select.className = 'select';
+  
   // Добавляем обработчик события для выделения правильного ответа
   select.addEventListener('change', function() {
     // Найти все текстовые поля в этом блоке
@@ -132,7 +207,7 @@ function createAnswer(form, block) {
   deleteButton.className = "deleteButton";
   deleteButton.textContent = "×";
   deleteButton.onclick = function() {
-    form.removeChild(answer);
+    container.removeChild(answer);
     updatePlaceholders(block);
     updateDeleteButtons();
   };
@@ -141,14 +216,13 @@ function createAnswer(form, block) {
   answer.appendChild(newInput);
   answer.appendChild(deleteButton);
 
-  form.appendChild(answer);
+  container.appendChild(answer);
 
   updatePlaceholders(block);
   updateDeleteButtons();
 }
 
 function renumberBlocks() {
-
   const blocks = main_container.querySelectorAll('.block');
   questionBlocks = [];
 
@@ -166,31 +240,12 @@ function renumberBlocks() {
   });
 
   blockCount = blocks.length;
-
   updateDeleteButtons();
 }
 
-// Добавляем новую функцию для визуального выделения правильного ответа
-function updateCorrectAnswerHighlight(block) {
-  const answers = block.querySelectorAll('.answer');
-  
-  answers.forEach(answer => {
-    const radio = answer.querySelector('input[type="radio"]');
-    const textInput = answer.querySelector('input[type="text"]');
-    
-    if (radio.checked) {
-      textInput.classList.add('correct-answer');
-    } else {
-      textInput.classList.remove('correct-answer');
-    }
-  });
-}
-
-// Обновляем функцию сохранения теста, чтобы добавить проверку на выбор правильного ответа
+// Функция валидации теста
 function validateTest() {
   const blocks = document.querySelectorAll('.block');
-  let isValid = true;
-  let errorMessage = '';
   
   // Проверка названия теста
   const testName = document.getElementById('testName').value.trim();
@@ -198,89 +253,140 @@ function validateTest() {
     return { isValid: false, errorMessage: 'Название теста не может быть пустым' };
   }
   
+  // Проверка наличия вопросов
+  if (blocks.length === 0) {
+    return { isValid: false, errorMessage: 'Тест должен содержать хотя бы один вопрос' };
+  }
+  
   // Проверка вопросов и ответов
   for (let i = 0; i < blocks.length; i++) {
     const block = blocks[i];
     const questionText = block.querySelector('.question').value.trim();
+    const questionType = block.querySelector('.question-type-select').value;
     
     // Проверка текста вопроса
     if (!questionText) {
       return { isValid: false, errorMessage: `Вопрос ${i + 1} не может быть пустым` };
     }
     
-    const answers = block.querySelectorAll('.answer');
-    
-    // Проверка количества ответов
-    if (answers.length < 2) {
-      return { isValid: false, errorMessage: `Вопрос ${i + 1} должен иметь как минимум 2 варианта ответа` };
-    }
-    
-    // Проверка текста ответов и наличия выбранного правильного ответа
-    let hasCorrectAnswer = false;
-    for (let j = 0; j < answers.length; j++) {
-      const answer = answers[j];
-      const answerText = answer.querySelector('input[type="text"]').value.trim();
+    // Проверки в зависимости от типа вопроса
+    if (questionType === 'multiple_choice') {
+      const answers = block.querySelectorAll('.answer');
       
-      // Проверка текста ответа
-      if (!answerText) {
-        return { isValid: false, errorMessage: `Ответ ${j + 1} в вопросе ${i + 1} не может быть пустым` };
+      // Проверка количества ответов
+      if (answers.length < 2) {
+        return { isValid: false, errorMessage: `Вопрос ${i + 1} должен иметь как минимум 2 варианта ответа` };
       }
       
-      // Проверка наличия правильного ответа
-      if (answer.querySelector('input[type="radio"]').checked) {
-        hasCorrectAnswer = true;
+      // Проверка текста ответов и наличия выбранного правильного ответа
+      let hasCorrectAnswer = false;
+      for (let j = 0; j < answers.length; j++) {
+        const answer = answers[j];
+        const answerText = answer.querySelector('input[type="text"]').value.trim();
+        
+        // Проверка текста ответа
+        if (!answerText) {
+          return { isValid: false, errorMessage: `Ответ ${j + 1} в вопросе ${i + 1} не может быть пустым` };
+        }
+        
+        // Проверка наличия правильного ответа
+        if (answer.querySelector('input[type="radio"]').checked) {
+          hasCorrectAnswer = true;
+        }
       }
-    }
-    
-    if (!hasCorrectAnswer) {
-      return { isValid: false, errorMessage: `Для вопроса ${i + 1} не выбран правильный ответ` };
+      
+      if (!hasCorrectAnswer) {
+        return { isValid: false, errorMessage: `Для вопроса ${i + 1} не выбран правильный ответ` };
+      }
     }
   }
   
   return { isValid: true, errorMessage: '' };
 }
+
 function addGroupField() {
-        const groupContainer = document.getElementById("groupContainer");
-        const newGroupField = document.createElement("div");
-        newGroupField.className = "groupField";
-          newGroupField.innerHTML = `
+  const groupContainer = document.getElementById("groupContainer");
+  const newGroupField = document.createElement("div");
+  newGroupField.className = "groupField";
+  newGroupField.innerHTML = `
     <label>Группа:</label>
     <input type="text" class="groupInput" name="groups[]">
   `;
 
   groupContainer.appendChild(newGroupField);
 }
-          // Собираем данные теста
-  
-// Add event listener to save button
+
+// Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
-  const saveButton = document.getElementById('save-test');
+  // Создаем первый вопрос, если его еще нет
+  if (!document.querySelector('.block')) {
+    createQuestion();
+  }
+  
+  // Добавляем обработчик для кнопки сохранения теста
+  const saveButton = document.getElementById('custom-save-btn');
   if (saveButton) {
-    saveButton.addEventListener('click', function() {
-      try {
-        // Collect all test data
-        const testData = {
+    saveButton.addEventListener('click', function(e) {
+      // Предотвращаем стандартное поведение кнопки
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Валидация теста перед отправкой
+      const validation = validateTest();
+      const validationMessage = document.getElementById("validation-message");
+      
+      if (!validation.isValid) {
+        // Показываем сообщение об ошибке
+        if (validationMessage) {
+          validationMessage.textContent = validation.errorMessage;
+          validationMessage.classList.add('show');
+        }
+        
+        // Показываем всплывающее сообщение
+        alert(validation.errorMessage);
+        
+        // Прерываем выполнение функции
+        return;
+      }
+      
+      // Если валидация пройдена, скрываем сообщение об ошибке
+      if (validationMessage) {
+        validationMessage.classList.remove('show');
+      }
+      
+      // Собираем данные теста
+      const testData = {
         name: document.getElementById('testName').value,
         questions: [],
         groups: []  // Инициализируем массив groups
-        };
+      };
 
-  // Получаем значения из полей групп
-  const groupInputs = document.querySelectorAll(".groupInput");
-  const groups = Array.from(groupInputs).map(input => input.value);
-  testData.groups = groups;  // Добавляем массив groups в testData
+      // Получаем значения из полей групп
+      const groupInputs = document.querySelectorAll(".groupInput");
+      const groups = Array.from(groupInputs).map(input => input.value);
+      testData.groups = groups;  // Добавляем массив groups в testData
+      
+      // Получаем все блоки вопросов
+      const blocks = document.querySelectorAll('.block');
+      blocks.forEach((block, blockIndex) => {
+        const questionText = block.querySelector('.question').value;
+        const questionType = block.querySelector('.question-type-select').value;
         
-        // Get all question blocks
-        const blocks = document.querySelectorAll('.block');
-        blocks.forEach((block, blockIndex) => {
-          const questionText = block.querySelector('.question').value || '';
+        // Создаем объект вопроса с общими свойствами
+        const questionObj = {
+          question: questionText,
+          type: questionType
+        };
+        
+        if (questionType === 'multiple_choice') {
+          // Для вопроса с вариантами ответов
           const answers = [];
           const answerInputs = block.querySelectorAll('.answer');
           
           let correctAnswerIndex = -1;
           
           answerInputs.forEach((answerInput, index) => {
-            const answerText = answerInput.querySelector('input[type="text"]').value || '';
+            const answerText = answerInput.querySelector('input[type="text"]').value;
             const isSelected = answerInput.querySelector('input[type="radio"]').checked;
             
             answers.push({
@@ -293,54 +399,47 @@ document.addEventListener('DOMContentLoaded', function() {
             }
           });
           
-          testData.questions.push({
-            question: questionText,
-            answers: answers,
-            correctAnswerIndex: correctAnswerIndex
-          });
-        });
-        
-        // Проверка на пустые значения
-        if (!testData.name) {
-          testData.name = "Новый тест";
+          questionObj.answers = answers;
+          questionObj.correctAnswerIndex = correctAnswerIndex;
+        } else {
+          // Для вопроса с текстовым ответом
+          questionObj.textAnswer = block.querySelector('.text-answer textarea').value || '';
         }
         
-        // Проверка данных перед отправкой
-        const jsonString = JSON.stringify(testData);
-        console.log("JSON to send:", jsonString);
-        
-        // Send data to server
-        fetch('/creator', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: jsonString
-        })
-        .then(response => {
-          console.log("Response status:", response.status);
-          return response.json();
-        })
-        .then(data => {
-          console.log("Response data:", data);
-          if (data.success) {
-            alert('Тест успешно сохранен!');
-            window.location.href = '/admin/dashboard';
-          } else {
-            alert('Произошла ошибка при сохранении теста: ' + data.message);
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('Произошла ошибка при сохранении теста: ' + error);
-        });
-      } catch (error) {
-        console.error("Error preparing data:", error);
-        alert('Ошибка при подготовке данных: ' + error.message);
-      }
+        testData.questions.push(questionObj);
+      });
+      
+      // Отправляем данные на сервер только если валидация пройдена
+      fetch('/creator', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(testData)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Тест успешно сохранен!');
+          window.location.href = "/my-tests";
+        } else {
+          alert('Произошла ошибка при сохранении теста: ' + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Произошла ошибка при сохранении теста');
+      });
     });
   }
+  
+  // Проверяем все блоки вопросов и скрываем кнопку "Добавить ответ" для вопросов с развернутым ответом
+  document.querySelectorAll('.block').forEach(block => {
+    const typeSelect = block.querySelector('.question-type-select');
+    const plusButton = block.querySelector('.plusButton');
+    
+    if (typeSelect && plusButton && typeSelect.value === 'text_answer') {
+      plusButton.style.display = 'none';
+    }
+  });
 });
-
-// Create the first question when the page loads
-createQuestion();

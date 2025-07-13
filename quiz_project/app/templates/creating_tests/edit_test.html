@@ -26,6 +26,32 @@
         border-color: #4CAF50;
       }
       
+      /* Стили для типа вопроса */
+      .question-type-container {
+        margin: 10px 0;
+      }
+      
+      .question-type-select {
+        padding: 5px;
+        margin-left: 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+      }
+      
+      /* Стили для текстового ответа */
+      .text-answer {
+        margin: 10px 0;
+      }
+      
+      .text-answer-area {
+        width: 100%;
+        min-height: 100px;
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        resize: vertical;
+      }
+      
       html {
         height: 100%;
       }
@@ -94,11 +120,11 @@
       </div>
     </div>
     <div id="groupContainer">
-    <div class="groupField">
-      <label>Группа:</label>
-      <input type="text" class="groupInput" name="groups[]">
+      <div class="groupField">
+        <label>Группа:</label>
+        <input type="text" class="groupInput" name="groups[]">
+      </div>
     </div>
-  </div>
     <button type="button" onclick="addGroupField()">Добавить группу</button><br><br>
     <div class="footer">
       © 2025 гр. Б23-302, Б22-302
@@ -110,13 +136,13 @@
         const groupContainer = document.getElementById("groupContainer");
         const newGroupField = document.createElement("div");
         newGroupField.className = "groupField";
-          newGroupField.innerHTML = `
-    <label>Группа:</label>
-    <input type="text" class="groupInput" name="groups[]">
-  `;
-
-  groupContainer.appendChild(newGroupField);
-}
+        newGroupField.innerHTML = `
+          <label>Группа:</label>
+          <input type="text" class="groupInput" name="groups[]">
+        `;
+        groupContainer.appendChild(newGroupField);
+      }
+      
       // Определяем функцию валидации прямо в шаблоне
       function validateTest() {
         const blocks = document.querySelectorAll('.block');
@@ -136,38 +162,42 @@
         for (let i = 0; i < blocks.length; i++) {
           const block = blocks[i];
           const questionText = block.querySelector('.question').value.trim();
+          const questionType = block.querySelector('.question-type-select').value;
           
           // Проверка текста вопроса
           if (!questionText) {
             return { isValid: false, errorMessage: `Вопрос ${i + 1} не может быть пустым` };
           }
           
-          const answers = block.querySelectorAll('.answer');
-          
-          // Проверка количества ответов
-          if (answers.length < 2) {
-            return { isValid: false, errorMessage: `Вопрос ${i + 1} должен иметь как минимум 2 варианта ответа` };
-          }
-          
-          // Проверка текста ответов и наличия выбранного правильного ответа
-          let hasCorrectAnswer = false;
-          for (let j = 0; j < answers.length; j++) {
-            const answer = answers[j];
-            const answerText = answer.querySelector('input[type="text"]').value.trim();
+          // Проверки в зависимости от типа вопроса
+          if (questionType === 'multiple_choice') {
+            const answers = block.querySelectorAll('.answer');
             
-            // Проверка текста ответа
-            if (!answerText) {
-              return { isValid: false, errorMessage: `Ответ ${j + 1} в вопросе ${i + 1} не может быть пустым` };
+            // Проверка количества ответов
+            if (answers.length < 2) {
+              return { isValid: false, errorMessage: `Вопрос ${i + 1} должен иметь как минимум 2 варианта ответа` };
             }
             
-            // Проверка наличия правильного ответа
-            if (answer.querySelector('input[type="radio"]').checked) {
-              hasCorrectAnswer = true;
+            // Проверка текста ответов и наличия выбранного правильного ответа
+            let hasCorrectAnswer = false;
+            for (let j = 0; j < answers.length; j++) {
+              const answer = answers[j];
+              const answerText = answer.querySelector('input[type="text"]').value.trim();
+              
+              // Проверка текста ответа
+              if (!answerText) {
+                return { isValid: false, errorMessage: `Ответ ${j + 1} в вопросе ${i + 1} не может быть пустым` };
+              }
+              
+              // Проверка наличия правильного ответа
+              if (answer.querySelector('input[type="radio"]').checked) {
+                hasCorrectAnswer = true;
+              }
             }
-          }
-          
-          if (!hasCorrectAnswer) {
-            return { isValid: false, errorMessage: `Для вопроса ${i + 1} не выбран правильный ответ` };
+            
+            if (!hasCorrectAnswer) {
+              return { isValid: false, errorMessage: `Для вопроса ${i + 1} не выбран правильный ответ` };
+            }
           }
         }
         
@@ -199,22 +229,52 @@
             block.querySelector('.question').value = question.question;
             autoResize(block.querySelector('.question'));
             
-            // Удалить все существующие ответы
-            const form = block.querySelector('.form');
-            const answers = block.querySelectorAll('.answer');
-            answers.forEach(answer => form.removeChild(answer));
+            // Установить тип вопроса
+            const typeSelect = block.querySelector('.question-type-select');
+            const questionType = question.type || 'multiple_choice'; // По умолчанию - вопрос с вариантами
+            typeSelect.value = questionType;
             
-            // Добавить ответы из данных
-            question.answers.forEach((answer, index) => {
-              createAnswer(form, block);
-              const answerElement = block.querySelector('.answer:last-child');
-              answerElement.querySelector('input[type="text"]').value = answer.text;
+            // Показать/скрыть соответствующие контейнеры
+            const answersContainer = block.querySelector('.answers-container');
+            const textAnswerContainer = block.querySelector('.text-answer');
+            const plusButton = block.querySelector('.plusButton');
+            
+            if (questionType === 'multiple_choice') {
+              answersContainer.style.display = 'block';
+              textAnswerContainer.style.display = 'none';
+              plusButton.style.display = 'inline-block'; // Показываем кнопку "Добавить ответ"
               
-              // Отметить правильный ответ
-              if (answer.isCorrect) {
-                answerElement.querySelector('input[type="radio"]').checked = true;
+              // Удалить все существующие ответы
+              const answers = answersContainer.querySelectorAll('.answer');
+              answers.forEach(answer => answersContainer.removeChild(answer));
+              
+              // Добавить ответы из данных
+              if (question.answers && question.answers.length > 0) {
+                question.answers.forEach((answer, index) => {
+                  createAnswer(answersContainer, block);
+                  const answerElement = answersContainer.querySelector('.answer:last-child');
+                  answerElement.querySelector('input[type="text"]').value = answer.text;
+                  
+                  // Отметить правильный ответ
+                  if (answer.isCorrect) {
+                    answerElement.querySelector('input[type="radio"]').checked = true;
+                    answerElement.querySelector('input[type="text"]').classList.add('correct-answer');
+                  }
+                });
+              } else {
+                // Если нет ответов, создать два пустых
+                createAnswer(answersContainer, block);
+                createAnswer(answersContainer, block);
               }
-            });
+            } else {
+              // Для вопроса с текстовым ответом
+              answersContainer.style.display = 'none';
+              textAnswerContainer.style.display = 'block';
+              plusButton.style.display = 'none'; // Скрываем кнопку "Добавить ответ"
+              
+              // Установить текст ответа
+              textAnswerContainer.querySelector('textarea').value = question.textAnswer || '';
+            }
             
             // Обновить плейсхолдеры и кнопки удаления
             updatePlaceholders(block);
@@ -223,6 +283,22 @@
         } else {
           // Если нет вопросов, создать один пустой
           createQuestion();
+        }
+        
+        // Загрузить группы
+        if (testData.groups && testData.groups.length > 0) {
+          const groupContainer = document.getElementById('groupContainer');
+          groupContainer.innerHTML = ''; // Очистить контейнер групп
+          
+          testData.groups.forEach((group, index) => {
+            const groupField = document.createElement('div');
+            groupField.className = 'groupField';
+            groupField.innerHTML = `
+              <label>Группа:</label>
+              <input type="text" class="groupInput" name="groups[]" value="${group}">
+            `;
+            groupContainer.appendChild(groupField);
+          });
         }
       }
       
@@ -294,42 +370,55 @@
           const updatedTestData = {
             name: document.getElementById('testName').value,
             questions: [],
-            groups: []  // Инициализируем массив groups
-        };
+            groups: []
+          };
 
-  // Получаем значения из полей групп
-  const groupInputs = document.querySelectorAll(".groupInput");
-  const groups = Array.from(groupInputs).map(input => input.value);
-  updatedTestData.groups = groups;  // Добавляем массив groups в testData
+          // Получаем значения из полей групп
+          const groupInputs = document.querySelectorAll(".groupInput");
+          const groups = Array.from(groupInputs).map(input => input.value);
+          updatedTestData.groups = groups;
           
           // Получаем все блоки вопросов
           const blocks = document.querySelectorAll('.block');
           blocks.forEach((block, blockIndex) => {
             const questionText = block.querySelector('.question').value;
-            const answers = [];
-            const answerInputs = block.querySelectorAll('.answer');
+            const questionType = block.querySelector('.question-type-select').value;
             
-            let correctAnswerIndex = -1;
+            // Создаем объект вопроса с общими свойствами
+            const questionObj = {
+              question: questionText,
+              type: questionType
+            };
             
-            answerInputs.forEach((answerInput, index) => {
-              const answerText = answerInput.querySelector('input[type="text"]').value;
-              const isSelected = answerInput.querySelector('input[type="radio"]').checked;
+            if (questionType === 'multiple_choice') {
+              // Для вопроса с вариантами ответов
+              const answers = [];
+              const answerInputs = block.querySelectorAll('.answer');
               
-              answers.push({
-                text: answerText,
-                isCorrect: isSelected
+              let correctAnswerIndex = -1;
+              
+              answerInputs.forEach((answerInput, index) => {
+                const answerText = answerInput.querySelector('input[type="text"]').value;
+                const isSelected = answerInput.querySelector('input[type="radio"]').checked;
+                
+                answers.push({
+                  text: answerText,
+                  isCorrect: isSelected
+                });
+                
+                if (isSelected) {
+                  correctAnswerIndex = index;
+                }
               });
               
-              if (isSelected) {
-                correctAnswerIndex = index;
-              }
-            });
+              questionObj.answers = answers;
+              questionObj.correctAnswerIndex = correctAnswerIndex;
+            } else {
+              // Для вопроса с текстовым ответом
+              questionObj.textAnswer = block.querySelector('.text-answer textarea').value || '';
+            }
             
-            updatedTestData.questions.push({
-              question: questionText,
-              answers: answers,
-              correctAnswerIndex: correctAnswerIndex
-            });
+            updatedTestData.questions.push(questionObj);
           });
           
           // Отправляем данные на сервер только если валидация пройдена
@@ -357,4 +446,4 @@
       });
     </script>
   </body>
-</html> 
+</html>

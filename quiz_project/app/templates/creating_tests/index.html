@@ -26,6 +26,32 @@
         border-color: #4CAF50;
       }
       
+      /* Стили для типа вопроса */
+      .question-type-container {
+        margin: 10px 0;
+      }
+      
+      .question-type-select {
+        padding: 5px;
+        margin-left: 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+      }
+      
+      /* Стили для текстового ответа */
+      .text-answer {
+        margin: 10px 0;
+      }
+      
+      .text-answer-area {
+        width: 100%;
+        min-height: 100px;
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        resize: vertical;
+      }
+      
       html {
         height: 100%;
       }
@@ -93,13 +119,13 @@
         </div>
       </div>
     </div>
-      <div id="groupContainer">
-    <div class="groupField">
-      <label>Группа:</label>
-      <input type="text" class="groupInput" name="groups[]">
+    <div id="groupContainer">
+      <div class="groupField">
+        <label>Группа:</label>
+        <input type="text" class="groupInput" name="groups[]">
+      </div>
     </div>
-  </div>
-  <button type="button" onclick="addGroupField()">Добавить группу</button><br><br>
+    <button type="button" onclick="addGroupField()">Добавить группу</button><br><br>
   
     <div class="footer">
       © 2025 гр. Б23-302, Б22-302
@@ -107,189 +133,62 @@
     
     <script src="{{ url_for('static', filename='creating_tests/js/main.js') }}"></script>
     <script>
-      
-
-      // Определяем функцию валидации прямо в шаблоне
-      function validateTest() {
-        const blocks = document.querySelectorAll('.block');
+      document.addEventListener('DOMContentLoaded', function() {
+        // Обработка модального окна подтверждения
+        const modal = document.getElementById("confirmModal");
+        const backBtn = document.getElementById("back-btn");
+        const cancelBtn = document.getElementById("cancelBtn");
+        const confirmBtn = document.getElementById("confirmBtn");
         
-        // Проверка названия теста
-        const testName = document.getElementById('testName').value.trim();
-        if (!testName) {
-          return { isValid: false, errorMessage: 'Название теста не может быть пустым' };
-        }
-        
-        // Проверка наличия вопросов
-        if (blocks.length === 0) {
-          return { isValid: false, errorMessage: 'Тест должен содержать хотя бы один вопрос' };
-        }
-        
-        // Проверка вопросов и ответов
-        for (let i = 0; i < blocks.length; i++) {
-          const block = blocks[i];
-          const questionText = block.querySelector('.question').value.trim();
-          
-          // Проверка текста вопроса
-          if (!questionText) {
-            return { isValid: false, errorMessage: `Вопрос ${i + 1} не может быть пустым` };
-          }
-          
-          const answers = block.querySelectorAll('.answer');
-          
-          // Проверка количества ответов
-          if (answers.length < 2) {
-            return { isValid: false, errorMessage: `Вопрос ${i + 1} должен иметь как минимум 2 варианта ответа` };
-          }
-          
-          // Проверка текста ответов и наличия выбранного правильного ответа
-          let hasCorrectAnswer = false;
-          for (let j = 0; j < answers.length; j++) {
-            const answer = answers[j];
-            const answerText = answer.querySelector('input[type="text"]').value.trim();
-            
-            // Проверка текста ответа
-            if (!answerText) {
-              return { isValid: false, errorMessage: `Ответ ${j + 1} в вопросе ${i + 1} не может быть пустым` };
-            }
-            
-            // Проверка наличия правильного ответа
-            if (answer.querySelector('input[type="radio"]').checked) {
-              hasCorrectAnswer = true;
-            }
-          }
-          
-          if (!hasCorrectAnswer) {
-            return { isValid: false, errorMessage: `Для вопроса ${i + 1} не выбран правильный ответ` };
-          }
-        }
-        
-        return { isValid: true, errorMessage: '' };
-      }
-      
-      // Обработка модального окна подтверждения
-      const modal = document.getElementById("confirmModal");
-      const backBtn = document.getElementById("back-btn");
-      const cancelBtn = document.getElementById("cancelBtn");
-      const confirmBtn = document.getElementById("confirmBtn");
-      const validationMessage = document.getElementById("validation-message");
-      
-      // Показать модальное окно при нажатии на кнопку "Вернуться"
-      backBtn.addEventListener("click", function() {
-        modal.style.display = "block";
-      });
-      
-      // Скрыть модальное окно при нажатии на "Отмена"
-      cancelBtn.addEventListener("click", function() {
-        modal.style.display = "none";
-      });
-      
-      // Перейти на главную страницу при подтверждении
-      confirmBtn.addEventListener("click", function() {
-        window.location.href = "{{ url_for('main.index') }}";
-      });
-      
-      // Закрыть модальное окно при клике вне его
-      window.addEventListener("click", function(event) {
-        if (event.target == modal) {
-          modal.style.display = "none";
-        }
-      });
-      
-      // Скрываем оригинальную кнопку сохранения, если она есть
-      const originalSaveBtn = document.getElementById("save-test");
-      if (originalSaveBtn) {
-        originalSaveBtn.style.display = 'none';
-      }
-      
-      // Используем нашу собственную кнопку с другим ID
-      document.getElementById("custom-save-btn").addEventListener("click", function(e) {
-        // Предотвращаем стандартное поведение кнопки
-        e.preventDefault();
-        e.stopPropagation();
-        
-        // Валидация теста перед отправкой
-        const validation = validateTest();
-        
-        if (!validation.isValid) {
-          // Показываем сообщение об ошибке
-          validationMessage.textContent = validation.errorMessage;
-          validationMessage.classList.add('show');
-          
-          // Показываем всплывающее сообщение
-          alert(validation.errorMessage);
-          
-          // Прерываем выполнение функции
-          return;
-        }
-        
-        // Если валидация пройдена, скрываем сообщение об ошибке
-        validationMessage.classList.remove('show');
-        
-        // Собираем данные теста
-        const testData = {
-        name: document.getElementById('testName').value,
-        questions: [],
-        groups: []  // Инициализируем массив groups
-        };
-
-  // Получаем значения из полей групп
-  const groupInputs = document.querySelectorAll(".groupInput");
-  const groups = Array.from(groupInputs).map(input => input.value);
-  testData.groups = groups;  // Добавляем массив groups в testData
-        
-        // Получаем все блоки вопросов
-        const blocks = document.querySelectorAll('.block');
-        blocks.forEach((block, blockIndex) => {
-          const questionText = block.querySelector('.question').value;
-          const answers = [];
-          const answerInputs = block.querySelectorAll('.answer');
-          
-          let correctAnswerIndex = -1;
-          
-          answerInputs.forEach((answerInput, index) => {
-            const answerText = answerInput.querySelector('input[type="text"]').value;
-            const isSelected = answerInput.querySelector('input[type="radio"]').checked;
-            
-            answers.push({
-              text: answerText,
-              isCorrect: isSelected
-            });
-            
-            if (isSelected) {
-              correctAnswerIndex = index;
-            }
-          });
-          
-          testData.questions.push({
-            question: questionText,
-            answers: answers,
-            correctAnswerIndex: correctAnswerIndex
-          });
+        // Показать модальное окно при нажатии на кнопку "Вернуться"
+        backBtn.addEventListener("click", function() {
+          modal.style.display = "block";
         });
         
-        // Отправляем данные на сервер только если валидация пройдена
-        fetch('/creator', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(testData)
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            alert('Тест успешно сохранен!');
-            window.location.href = "{{ url_for('main.index') }}";
-          } else {
-            alert('Произошла ошибка при сохранении теста: ' + data.message);
+        // Скрыть модальное окно при нажатии на "Отмена"
+        cancelBtn.addEventListener("click", function() {
+          modal.style.display = "none";
+        });
+        
+        // Перейти на главную страницу при подтверждении
+        confirmBtn.addEventListener("click", function() {
+          window.location.href = "{{ url_for('main.index') }}";
+        });
+        
+        // Закрыть модальное окно при клике вне его
+        window.addEventListener("click", function(event) {
+          if (event.target == modal) {
+            modal.style.display = "none";
           }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('Произошла ошибка при сохранении теста');
+        });
+        
+        // Добавляем обработчик для изменения типа вопроса
+        document.addEventListener('change', function(event) {
+          if (event.target && event.target.classList.contains('question-type-select')) {
+            const block = event.target.closest('.block');
+            if (block) {
+              const plusButton = block.querySelector('.plusButton');
+              if (plusButton) {
+                if (event.target.value === 'text_answer') {
+                  plusButton.style.display = 'none';
+                } else {
+                  plusButton.style.display = 'inline-block';
+                }
+              }
+            }
+          }
+        });
+        
+        // Проверяем все блоки вопросов и скрываем кнопку "Добавить ответ" для вопросов с развернутым ответом
+        document.querySelectorAll('.block').forEach(block => {
+          const typeSelect = block.querySelector('.question-type-select');
+          const plusButton = block.querySelector('.plusButton');
+          
+          if (typeSelect && plusButton && typeSelect.value === 'text_answer') {
+            plusButton.style.display = 'none';
+          }
         });
       });
     </script>
-    
   </body>
 </html>
