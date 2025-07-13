@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Успех!</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='creating_tests/css/main.css') }}">
+    <style>
+        /* Дополнительные стили только для этой страницы */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .success-message {
+            background-color: #d4edda; /* Светло-зеленый фон */
+            color: #155724; /* Темно-зеленый текст */
+            border: 1px solid #c3e6cb;
+            padding: 40px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .success-message a {
+            margin-top: 20px;
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+        .success-message a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="success-message">
+        <p>Тест успешно сохранен!</p>
+        <a href="/creator">Создать новый тест</a>
+    </div>
+</body>
+</html>

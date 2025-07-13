@@ -32,7 +32,7 @@ class User(db.Model, UserMixin):
 
     # role: Роль пользователя ('user' или 'admin'). По умолчанию - 'user'.
     role = db.Column(db.String(20), nullable=False, default='user')
-
+    group = db.Column(db.String(7), default="")
     def set_password(self, password):
         """Метод для установки хеша пароля."""
         self.password_hash = generate_password_hash(password)
