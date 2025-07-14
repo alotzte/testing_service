@@ -2,24 +2,32 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Мои тесты</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>мои тесты</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='creating_tests/css/my_tests.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/icon.png') }}" type="image/png">
   </head>
   <body>
-    <div id='header'>
-      <div class="logo">
-        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="МИСРИ" onerror="this.src='https://via.placeholder.com/40x40?text=МИСРИ'">
-        <span class="platform-name">платформа для онлайн-тестирований</span>
-      </div>
-      <div class="user-controls">
-        <span class="username">{{ current_user.username }}</span>
-        <a href="{{ url_for('auth.logout') }}" class="btn">Выйти</a>
-      </div>
-    </div>
+        <header class="header">
+            <div class="container">
+                <img src="{{ url_for('static', filename='images/logo-mini-without (1).png') }}" class="mephi"/>
+                <a href="{{ url_for('main.index') }}" class="logo">платформа для онлайн-тестирований</a>
+                <nav class="nav">
+                    {% if current_user.is_authenticated %}
+                        <span class="username">{{ current_user.username }}</span>
+                        <a href="{{ url_for('auth.logout') }}" class="nav-link">Выйти</a>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="nav-link">Войти</a>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Зарегистрироваться</a>
+                    {% endif %}
+                </nav>
+            </div>
+        </header>
 
     <h1 class="page-title">Мои тесты</h1>
     
-    <div class="container">
+    <div class="container0">
       <div class="actions">
         <a href="{{ url_for('main.index') }}" class="btn btn-secondary">На главную</a>
         <a href="{{ url_for('creating_tests.create_test') }}" class="btn btn-primary">Создать новый тест</a>
