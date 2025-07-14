@@ -77,5 +77,7 @@ def create_app():
         # Регистрируем админский blueprint
         from .admin.routes import admin_bp
         app.register_blueprint(admin_bp, url_prefix='/admin')
+        from .pass_tests.routes import pass_tests_bp
+        app.register_blueprint(pass_tests_bp)
         
     return app

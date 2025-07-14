@@ -28,7 +28,7 @@ def create_test():
     """
     print("Request method:", request.method)
     
-    if request.method == 'POST':
+    if request.method == 'POST' and current_user.role != "user":
         print("Received POST request")
         try:
             # Проверяем, что запрос содержит JSON
@@ -54,7 +54,8 @@ def create_test():
                     # Create new test record
                     new_test = Test(
                         test_author=current_user.username,
-                        test_info=json_string_to_store
+                        test_info=json_string_to_store,
+                        test_groups=json.dumps(received_data["groups"], ensure_ascii=False)
                     )
                     
                     # Save to database
@@ -138,7 +139,8 @@ def edit_test(test_id):
             # Update the test data
             json_string_to_store = json.dumps(received_data, indent=2, ensure_ascii=False)
             test.test_info = json_string_to_store
-            
+            groups_to_store = json.dumps(received_data["groups"], ensure_ascii=False)
+            test.groups = groups_to_store
             # Save to database
             db.session.commit()
             
