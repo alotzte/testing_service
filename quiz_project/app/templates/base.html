@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title or 'QuizMaster' }}</title>
+    <title>платформа для онлайн-тестирований</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/icon.png') }}" type="image/png">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
@@ -15,7 +16,7 @@
                 <nav class="nav">
                     {% if current_user.is_authenticated %}
                         <span class="username">{{ current_user.username }}</span>
-                        <a href="{{ url_for('auth.logout') }}" class="btn">Выйти</a>
+                        <a href="{{ url_for('auth.logout') }}" class="nav-link">Выйти</a>
                     {% else %}
                         <a href="{{ url_for('auth.login') }}" class="nav-link">Войти</a>
                         <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Зарегистрироваться</a>
@@ -45,5 +46,13 @@
             </div>
         </footer>
     </div>
+    <script>
+    // Закрытие flash-сообщений
+    document.querySelectorAll('.close-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.target.parentElement.remove();
+        });
+    });
+    </script>
 </body>
 </html>

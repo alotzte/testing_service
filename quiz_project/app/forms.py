@@ -40,7 +40,7 @@ class RegistrationForm(FlaskForm):
     ])
 
     # Поле для выбора роли.
-    role = RadioField('Роль', choices=[('user', 'Пользователь'), ('admin', 'Администратор')],
+    role = RadioField('Роль', choices=[('user', 'Студент'), ('admin', 'Преподаватель')],
                        validators=[DataRequired()])
 
     # Поле для ввода группы

@@ -260,3 +260,46 @@ body {
         padding: 0.7rem;
     }
 }
+
+#group-field {
+    display: none;
+    margin-top: 15px;
+}
+
+/* Показываем поле группы при выборе "Пользователь" */
+#role-0:checked ~ #group-field {
+    display: block;
+}
+
+/* Современный вариант (если браузер поддерживает :has) */
+.role-selection:has(#role-0:checked) + #group-field {
+    display: block;
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    position: relative;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.alert-info {
+    background-color: #e9ecef;
+    color: #343a40;
+}
+
+.close-btn {
+    position: absolute;
+    right: 15px;
+    cursor: pointer;
+}
