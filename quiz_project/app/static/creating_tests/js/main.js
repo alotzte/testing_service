@@ -341,10 +341,7 @@ document.addEventListener('DOMContentLoaded', function() {
           validationMessage.textContent = validation.errorMessage;
           validationMessage.classList.add('show');
         }
-        
-        // Показываем всплывающее сообщение
-        alert(validation.errorMessage);
-        
+
         // Прерываем выполнение функции
         return;
       }
@@ -420,7 +417,6 @@ document.addEventListener('DOMContentLoaded', function() {
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          alert('Тест успешно сохранен!');
           window.location.href = "/my-tests";
         } else {
           alert('Произошла ошибка при сохранении теста: ' + data.message);
