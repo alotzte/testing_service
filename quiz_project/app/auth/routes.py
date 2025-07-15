@@ -87,5 +87,8 @@ def login():
 def logout():
     # Функция logout_user() из Flask-Login "забывает" пользователя
     logout_user()
+    # Очищаем сессию полностью для предотвращения проблем с кешированием
+    from flask import session
+    session.clear()
     flash('Вы успешно вышли из своего аккаунта.', 'info')
-    return redirect(url_for('main.index'))
+    return redirect(url_for('auth.login'))
