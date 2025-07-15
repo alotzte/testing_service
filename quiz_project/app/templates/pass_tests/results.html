@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="results-container">
+    <h1 class="page-title">Мои результаты тестов</h1>
+    
+    {% if results %}
+        <div class="results-list">
+            {% for result in results %}
+                <div class="result-card">
+                    <div class="result-header">
+                        <div class="result-title">{{ result.test_name }}</div>
+                        <div class="result-score {% if result.percentage >= 70 %}good-score{% elif result.percentage >= 40 %}average-score{% else %}poor-score{% endif %}">
+                            {{ result.score }} / {{ result.total }} ({{ result.percentage }}%)
+                        </div>
+                    </div>
+                    <div class="result-info">
+                        <p>Пройден: {{ result.completed_at }}</p>
+                    </div>
+                    <div class="result-actions">
+                        <a href="{{ url_for('pass_tests.view_result', result_id=result.id) }}" class="btn btn-primary">Просмотреть детали</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-results">
+            <p>У вас пока нет пройденных тестов.</p>
+            <p>Перейдите в раздел "Доступные тесты", чтобы пройти тест.</p>
+        </div>
+    {% endif %}
+    
+    <div class="back-link">
+        <a href="{{ url_for('main.index') }}" class="btn btn-secondary">На главную</a>
+        <a href="{{ url_for('pass_tests.my_tests') }}" class="btn btn-primary">К доступным тестам</a>
+    </div>
+</div>
+
+<style>
+    .results-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px 0;
+    }
+    
+    .page-title {
+        font-size: 24px;
+        margin-bottom: 30px;
+        color: #333;
+        text-align: center;
+    }
+    
+    .results-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .result-card {
+        background-color: white;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+    
+    .result-title {
+        font-size: 18px;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+    
+    .result-score {
+        font-weight: bold;
+        padding: 5px 10px;
+        border-radius: 4px;
+    }
+    
+    .good-score {
+        background-color: #27ae60;
+        color: white;
+    }
+    
+    .average-score {
+        background-color: #f39c12;
+        color: white;
+    }
+    
+    .poor-score {
+        background-color: #e74c3c;
+        color: white;
+    }
+    
+    .result-info {
+        margin-bottom: 15px;
+    }
+    
+    .result-info p {
+        margin: 5px 0;
+        color: #555;
+    }
+    
+    .result-actions {
+        display: flex;
+        justify-content: flex-end;
+    }
+    
+    .no-results {
+        text-align: center;
+        padding: 30px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        margin-bottom: 30px;
+    }
+    
+    .back-link {
+        margin-top: 30px;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    
+    .btn-primary {
+        background-color: #2c3e50;
+        color: white;
+    }
+    
+    .btn-secondary {
+        background-color: #95a5a6;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background-color: #34495e;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #7f8c8d;
+    }
+</style>
+{% endblock %} 

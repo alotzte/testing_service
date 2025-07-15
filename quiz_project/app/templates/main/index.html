@@ -19,7 +19,7 @@
         
         <div class="admin-actions">
             <a href="{{ url_for('pass_tests.my_tests') }}" class="btn btn-primary">Доступные тесты</a>
-            <a href="#" class="btn btn-primary">Мои результаты</a>
+            <a href="{{ url_for('pass_tests.results') }}" class="btn btn-primary">Мои результаты</a>
         </div>
     {% endif %}
 

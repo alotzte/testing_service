@@ -51,3 +51,18 @@ class Test(db.Model):
     test_author = db.Column(db.String(80), nullable=False)
     test_info = db.Column(db.Text)  # Для SQLite используем Text вместо JSON
     groups = db.Column(db.Text)  # Переименовано с test_groups на groups
+
+class TestResult(db.Model):
+    __tablename__ = 'test_results'
+    id = db.Column(db.Integer, primary_key=True)
+    test_id = db.Column(db.Integer, db.ForeignKey('tests.id'), nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    test_result = db.Column(db.Text)  # Для SQLite используем Text вместо JSON для хранения результатов
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    
+    # Определяем отношения для удобства доступа
+    test = db.relationship('Test', backref=db.backref('results', lazy=True))
+    student = db.relationship('User', backref=db.backref('test_results', lazy=True))
+    
+    def __repr__(self):
+        return f'<TestResult {self.id}: Test {self.test_id} by Student {self.student_id}>'

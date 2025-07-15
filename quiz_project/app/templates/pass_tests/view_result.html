@@ -1,0 +1,398 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="result-detail">
+    <h1 class="page-title">Результат теста: {{ test_name }}</h1>
+    
+    <div class="result-summary">
+        <div class="summary-item">
+            <span class="label">Автор теста:</span>
+            <span class="value">{{ test_author }}</span>
+        </div>
+        <div class="summary-item">
+            <span class="label">Студент:</span>
+            <span class="value">{{ student.username }} ({{ student.group }})</span>
+        </div>
+        <div class="summary-item">
+            <span class="label">Дата прохождения:</span>
+            <span class="value">{{ result.completed_at }}</span>
+        </div>
+        <div class="summary-item score-item">
+            <span class="label">Результат:</span>
+            <span class="value score {% if result.percentage >= 70 %}good-score{% elif result.percentage >= 40 %}average-score{% else %}poor-score{% endif %}">
+                {{ result.score }} / {{ result.total }} ({{ result.percentage }}%)
+            </span>
+        </div>
+    </div>
+    
+    <h2 class="section-title">Детали по вопросам</h2>
+    
+    <div class="questions-detail">
+        {% for question_result in result.questions %}
+            <div class="question-card {% if question_result.is_correct %}correct-answer{% else %}wrong-answer{% endif %}">
+                <div class="question-header">
+                    <h3>Вопрос {{ loop.index }}</h3>
+                    <div class="question-info">
+                        <span class="question-type-badge">
+                            {% if question_result.type == 'single' %}
+                                Один вариант
+                            {% elif question_result.type == 'multiple' %}
+                                Несколько вариантов
+                            {% elif question_result.type == 'text' %}
+                                Текстовый ответ
+                            {% endif %}
+                        </span>
+                        <span class="result-badge {% if question_result.is_correct %}correct{% else %}wrong{% endif %}">
+                            {% if question_result.is_correct %}Верно{% else %}Неверно{% endif %}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="question-text">
+                    {{ question_result.question }}
+                </div>
+                
+                <div class="answer-detail">
+                    <!-- Отображение для вопросов с одним вариантом ответа -->
+                    {% if question_result.type == 'single' %}
+                        <div class="options-list">
+                            <h4>Варианты ответов:</h4>
+                            <div class="options-grid">
+                                {% for option in question_result.options %}
+                                    <div class="option-item {% if option == question_result.user_answer %}user-selected{% endif %} {% if option == question_result.correct_answer %}correct-option{% endif %}">
+                                        {{ option }}
+                                        {% if option == question_result.user_answer and option == question_result.correct_answer %}
+                                            <span class="option-badge correct">✓ Ваш выбор (верно)</span>
+                                        {% elif option == question_result.user_answer %}
+                                            <span class="option-badge wrong">✗ Ваш выбор</span>
+                                        {% elif option == question_result.correct_answer %}
+                                            <span class="option-badge correct">✓ Правильный ответ</span>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    
+                    <!-- Отображение для вопросов с множественным выбором -->
+                    {% elif question_result.type == 'multiple' %}
+                        <div class="options-list">
+                            <h4>Варианты ответов:</h4>
+                            <div class="options-grid">
+                                {% for option in question_result.options %}
+                                    <div class="option-item 
+                                        {% if option in question_result.user_answer %}user-selected{% endif %} 
+                                        {% if option in question_result.correct_answer %}correct-option{% endif %}
+                                        {% if option in question_result.user_answer and option not in question_result.correct_answer %}wrong-selected{% endif %}">
+                                        {{ option }}
+                                        {% if option in question_result.user_answer and option in question_result.correct_answer %}
+                                            <span class="option-badge correct">✓ Выбрано верно</span>
+                                        {% elif option in question_result.user_answer %}
+                                            <span class="option-badge wrong">✗ Выбрано неверно</span>
+                                        {% elif option in question_result.correct_answer %}
+                                            <span class="option-badge missed">Не выбрано</span>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    
+                    <!-- Отображение для текстовых вопросов -->
+                    {% elif question_result.type == 'text' %}
+                        <div class="text-answer-detail">
+                            <div class="answer-item">
+                                <span class="answer-label">Ваш ответ:</span>
+                                <span class="answer-value {% if question_result.is_correct %}correct-text{% else %}wrong-text{% endif %}">
+                                    {{ question_result.user_answer or '<Нет ответа>' }}
+                                </span>
+                            </div>
+                            
+                            <div class="answer-item">
+                                <span class="answer-label">Правильный ответ:</span>
+                                <span class="answer-value correct-text">
+                                    {{ question_result.correct_answer }}
+                                </span>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <div class="back-links">
+        <a href="{{ url_for('pass_tests.results') }}" class="btn btn-secondary">К списку результатов</a>
+        <a href="{{ url_for('main.index') }}" class="btn btn-primary">На главную</a>
+    </div>
+</div>
+
+<style>
+    .result-detail {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px 0;
+    }
+    
+    .page-title {
+        font-size: 24px;
+        margin-bottom: 20px;
+        color: #333;
+        text-align: center;
+    }
+    
+    .result-summary {
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .summary-item {
+        margin-bottom: 10px;
+        display: flex;
+    }
+    
+    .summary-item .label {
+        font-weight: bold;
+        width: 150px;
+    }
+    
+    .score-item {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #ddd;
+    }
+    
+    .score {
+        font-weight: bold;
+        padding: 5px 10px;
+        border-radius: 4px;
+    }
+    
+    .good-score {
+        background-color: #27ae60;
+        color: white;
+    }
+    
+    .average-score {
+        background-color: #f39c12;
+        color: white;
+    }
+    
+    .poor-score {
+        background-color: #e74c3c;
+        color: white;
+    }
+    
+    .section-title {
+        font-size: 20px;
+        margin: 30px 0 20px;
+        color: #333;
+    }
+    
+    .questions-detail {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .question-card {
+        background-color: white;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .correct-answer {
+        border-left: 5px solid #27ae60;
+    }
+    
+    .wrong-answer {
+        border-left: 5px solid #e74c3c;
+    }
+    
+    .question-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+    
+    .question-header h3 {
+        margin: 0;
+        font-size: 18px;
+        color: #2c3e50;
+    }
+    
+    .question-info {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    
+    .question-type-badge {
+        font-size: 12px;
+        background-color: #f8f9fa;
+        color: #6c757d;
+        padding: 3px 8px;
+        border-radius: 4px;
+        border: 1px solid #dee2e6;
+    }
+    
+    .result-badge {
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-weight: bold;
+        font-size: 14px;
+    }
+    
+    .result-badge.correct {
+        background-color: #27ae60;
+        color: white;
+    }
+    
+    .result-badge.wrong {
+        background-color: #e74c3c;
+        color: white;
+    }
+    
+    .question-text {
+        font-size: 16px;
+        margin-bottom: 15px;
+        line-height: 1.5;
+        font-weight: bold;
+    }
+    
+    .answer-detail {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+    }
+    
+    .options-list h4 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-size: 16px;
+        color: #555;
+    }
+    
+    .options-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+    }
+    
+    .option-item {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        position: relative;
+        background-color: white;
+    }
+    
+    .user-selected {
+        border-color: #3498db;
+    }
+    
+    .correct-option {
+        border-color: #27ae60;
+    }
+    
+    .wrong-selected {
+        border-color: #e74c3c;
+    }
+    
+    .option-badge {
+        display: block;
+        font-size: 12px;
+        margin-top: 5px;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    .option-badge.correct {
+        background-color: #27ae60;
+        color: white;
+    }
+    
+    .option-badge.wrong {
+        background-color: #e74c3c;
+        color: white;
+    }
+    
+    .option-badge.missed {
+        background-color: #f39c12;
+        color: white;
+    }
+    
+    .text-answer-detail {
+        padding: 10px;
+        background-color: white;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    
+    .answer-item {
+        margin-bottom: 15px;
+    }
+    
+    .answer-label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #555;
+    }
+    
+    .answer-value {
+        display: block;
+        padding: 10px;
+        background-color: #f5f5f5;
+        border-radius: 4px;
+    }
+    
+    .correct-text {
+        color: #27ae60;
+        font-weight: bold;
+    }
+    
+    .wrong-text {
+        color: #e74c3c;
+        text-decoration: line-through;
+    }
+    
+    .back-links {
+        margin-top: 30px;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    
+    .btn-primary {
+        background-color: #2c3e50;
+        color: white;
+    }
+    
+    .btn-secondary {
+        background-color: #95a5a6;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background-color: #34495e;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #7f8c8d;
+    }
+</style>
+{% endblock %} 
