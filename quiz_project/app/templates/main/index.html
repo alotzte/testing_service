@@ -14,7 +14,13 @@
             <a href="{{ url_for('creating_tests.create_test') }}" class="btn btn-primary">Создать новый тест</a>
             <a href="{{ url_for('creating_tests.my_tests') }}" class="btn btn-primary">Мои тесты</a>
         </div>
+    {% else %}
+        <p>Вы вошли как <strong>студент</strong>.</p>
+        <div class="admin-actions">
+            <a href="" class="btn btn-primary">Мои результаты</a>
+        </div>
     {% endif %}
+
 </div>
 
 <style>
