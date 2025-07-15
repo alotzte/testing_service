@@ -155,7 +155,7 @@ class DatabaseManager:
     def close(self):
         self.session.close()
 
-
+# ПРИМЕР РАБОТЫ ФУНКЦИЙ, НЕ НУЖЕН ДЛЯ РАБОТЫ БАЗЫ ДАННЫХ, МОЖЕТ БЫТЬ ЗАКОМЕНТИРОВАН ИЛИ УДАЛЁН
 # Создаем экземпляр DatabaseManager
 db = DatabaseManager()
 
