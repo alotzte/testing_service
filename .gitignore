@@ -1,0 +1,37 @@
+# Виртуальное окружение
+venv/
+
+# Файлы баз данных
+*.db
+*.sqlite3
+instance/
+
+# Кэш и временные файлы Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Логи
+*.log
+
+# Конфигурационные файлы среды
+.env
+*.env
+
+# Миграции Alembic (сами миграции можно оставить, но игнорировать временные файлы)
+migrations/*.pyc
+migrations/*.pyo
+
+# Файлы IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Системные файлы
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/ 

@@ -1,0 +1,9 @@
+Flask>=2.0
+Flask-Login>=0.6
+Flask-Migrate>=3.0
+Flask-WTF>=1.0
+Flask-SQLAlchemy>=2.5
+python-dotenv>=0.21
+WTForms>=3.0
+Werkzeug>=2.0
+alembic>=1.7 
