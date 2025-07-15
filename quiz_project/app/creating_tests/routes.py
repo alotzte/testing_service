@@ -55,7 +55,7 @@ def create_test():
                     new_test = Test(
                         test_author=current_user.username,
                         test_info=json_string_to_store,
-                        test_groups=json.dumps(received_data["groups"], ensure_ascii=False)
+                        groups=json.dumps(received_data["groups"], ensure_ascii=False)
                     )
                     
                     # Save to database

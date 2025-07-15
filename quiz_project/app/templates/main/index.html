@@ -5,7 +5,6 @@
     <h1>Добро пожаловать, {{ current_user.username }}!</h1>
     <p>Вы успешно вошли в систему.</p>
     <hr>
-    <p>На данный момент это главная страница вашего аккаунта. Скоро здесь появятся доступные для вас тесты.</p>
     
     {% if current_user.role == 'admin' %}
         <p>Вы вошли как <strong>преподаватель</strong>. Вы можете создавать и управлять тестами.</p>
@@ -16,8 +15,11 @@
         </div>
     {% else %}
         <p>Вы вошли как <strong>студент</strong>.</p>
+        <p>Ваша группа: {% if current_user.group %}<strong>{{ current_user.group }}</strong>{% else %}<span class="text-danger">не указана</span>{% endif %}</p>
+        
         <div class="admin-actions">
-            <a href="" class="btn btn-primary">Мои результаты</a>
+            <a href="{{ url_for('pass_tests.my_tests') }}" class="btn btn-primary">Доступные тесты</a>
+            <a href="#" class="btn btn-primary">Мои результаты</a>
         </div>
     {% endif %}
 
@@ -67,6 +69,11 @@
     
     .btn-primary:hover {
         background-color: #34495e;
+    }
+    
+    .text-danger {
+        color: #e74c3c;
+        font-weight: bold;
     }
 </style>
 {% endblock %}

@@ -50,4 +50,4 @@ class Test(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     test_author = db.Column(db.String(80), nullable=False)
     test_info = db.Column(db.Text)  # Для SQLite используем Text вместо JSON
-    test_groups = db.Column(db.Text)
+    groups = db.Column(db.Text)  # Переименовано с test_groups на groups
