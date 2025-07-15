@@ -32,6 +32,11 @@
         <button type="button" id="save-test" class="submit-btn">Сохранить изменения</button>
         <button type="button" id="back-btn" class="back-btn">Вернуться к списку тестов</button>
       </div>
+      <div id="groupContainer">
+
+      </div>
+      <button type="button" onclick="addGroupField()">Добавить</button><br><br>
+
       
       <div id='title'>
         <input id="testName" type="text" value="{{ test_data.name }}" placeholder="Название теста">
@@ -58,13 +63,6 @@
         </div>
       </div>
     </div>
-    <div id="groupContainer">
-      <div class="groupField">
-        <label>Группа:</label>
-        <input type="text" class="groupInput" name="groups[]">
-      </div>
-    </div>
-    <button type="button" onclick="addGroupField()">Добавить группу</button><br><br>
     <div class="footer">
       © 2025 гр. Б23-302, Б22-302
     </div>
@@ -76,7 +74,6 @@
         const newGroupField = document.createElement("div");
         newGroupField.className = "groupField";
         newGroupField.innerHTML = `
-          <label>Группа:</label>
           <input type="text" class="groupInput" name="groups[]">
         `;
         groupContainer.appendChild(newGroupField);
@@ -233,7 +230,6 @@
             const groupField = document.createElement('div');
             groupField.className = 'groupField';
             groupField.innerHTML = `
-              <label>Группа:</label>
               <input type="text" class="groupInput" name="groups[]" value="${group}">
             `;
             groupContainer.appendChild(groupField);

@@ -74,7 +74,7 @@
     background-color: #fff;
 }
 
-.question {
+.question, .text-answer-area {
     width: 100%;
     padding: 10px;
     margin-bottom: 15px;
@@ -139,9 +139,13 @@
     color: white;
     justify-self: start;
 }
+.plusButtonContainer{
+    justify-self: start;
+}
 
 .question-type-select{
     justify-self: center;
+    margin 0 auto;
     border: 1px solid #2c3e50;
     color: #2c3e50;
 }
@@ -159,6 +163,8 @@
 .deleteQuestion:hover {
     background-color: #5a6268;
 }
+
+
 
 #main_button {
     text-align: center;

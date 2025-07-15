@@ -22,7 +22,7 @@ function updatePlaceholders(block) {
   // Для текстового ответа
   const textAnswer = block.querySelector('.text-answer textarea');
   if (textAnswer) {
-    textAnswer.placeholder = "Место для развернутого ответа";
+    textAnswer.placeholder = "Введите правильный ответ";
   }
 }
 
@@ -79,18 +79,25 @@ function createQuestion() {
   
   var textAnswerArea = document.createElement('textarea');
   textAnswerArea.className = "text-answer-area";
+  textAnswerArea.addEventListener('input', function() {
+    autoResize(this);
+  });
   textAnswerArea.placeholder = "Место для развернутого ответа";
   textAnswerArea.rows = 5;
   
   textAnswerContainer.appendChild(textAnswerArea);
   
   // Создаем кнопку добавления ответа
+  var plusButtonContainer = document.createElement('div');
+  plusButtonContainer.className = "plusButtonContainer";
+
   var plusButton = document.createElement('button');
   plusButton.className = "plusButton";
   plusButton.textContent = "Добавить ответ";
   plusButton.onclick = function() {
     createAnswer(answersContainer, block);
   };
+  plusButtonContainer.appendChild(plusButton);
   
   // Создаем кнопку удаления вопроса
   var deleteQuestion = document.createElement('button');
@@ -112,7 +119,7 @@ function createQuestion() {
 
   var optionMultipleChoice = document.createElement('option');
   optionMultipleChoice.value = "multiple_choice";
-  optionMultipleChoice.textContent = "С вариантами ответа";
+  optionMultipleChoice.textContent = "С выбором ответа";
 
   var optionTextAnswer = document.createElement('option');
   optionTextAnswer.value = "text_answer";
@@ -123,7 +130,7 @@ function createQuestion() {
 
   var footbar = document.createElement('div');
   footbar.className = 'footbar';
-  footbar.appendChild(plusButton);
+  footbar.appendChild(plusButtonContainer);
   footbar.appendChild(typeSelect);
   footbar.appendChild(deleteQuestion);
 
@@ -301,7 +308,6 @@ function addGroupField() {
   const newGroupField = document.createElement("div");
   newGroupField.className = "groupField";
   newGroupField.innerHTML = `
-    <label>Группа:</label>
     <input type="text" class="groupInput" name="groups[]">
   `;
 
