@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_required, current_user
 from functools import wraps
 
-from ..models import User, Test
+from ..models import User, Test, TestResult
 from .. import db
 import json
 import traceback
@@ -107,6 +107,56 @@ def my_tests():
             print(f"Error parsing test {test.id}: {str(e)}")
     
     return render_template('creating_tests/my_tests.html', tests=parsed_tests)
+
+@creating_tests_bp.route('/test-results/<int:test_id>', methods=['GET'])
+@login_required
+@admin_required
+def test_results(test_id):
+    """
+    Page for viewing all results for a specific test
+    """
+    # Get the test
+    test = Test.query.get_or_404(test_id)
+    
+    # Check if the current user is the author
+    if test.test_author != current_user.username:
+        flash('У вас нет доступа к результатам этого теста.', 'danger')
+        return redirect(url_for('creating_tests.my_tests'))
+    
+    # Get all results for this test
+    results = TestResult.query.filter_by(test_id=test_id).all()
+    
+    # Parse test info
+    test_info = json.loads(test.test_info)
+    test_name = test_info.get('name', 'Без названия')
+    
+    # Prepare results data
+    results_data = []
+    for result in results:
+        try:
+            # Get student info
+            student = User.query.get(result.student_id)
+            
+            # Parse result data
+            result_data = json.loads(result.test_result)
+            
+            # Add to results list
+            results_data.append({
+                'id': result.id,
+                'student_name': student.username if student else 'Неизвестный',
+                'student_group': student.group if student else '',
+                'score': result_data.get('score', 0),
+                'total': result_data.get('total', 0),
+                'percentage': result_data.get('percentage', 0),
+                'completed_at': result_data.get('completed_at', '')
+            })
+        except Exception as e:
+            print(f"Error parsing result {result.id}: {str(e)}")
+    
+    return render_template('creating_tests/test_results.html', 
+                          test_id=test_id,
+                          test_name=test_name,
+                          results=results_data)
 
 @creating_tests_bp.route('/edit-test/<int:test_id>', methods=['GET', 'POST'])
 @login_required

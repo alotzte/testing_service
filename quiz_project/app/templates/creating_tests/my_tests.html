@@ -45,6 +45,7 @@
               </div>
               <div class="test-actions">
                 <a href="{{ url_for('creating_tests.edit_test', test_id=test.id) }}" class="btn btn-primary">Редактировать</a>
+                <a href="{{ url_for('creating_tests.test_results', test_id=test.id) }}" class="btn btn-info">Результаты</a>
                 <button class="btn btn-danger delete-btn" data-test-id="{{ test.id }}">Удалить</button>
               </div>
             </div>
@@ -156,5 +157,24 @@
         }
       });
     </script>
+
+    <style>
+      /* Добавляем стиль для кнопки "Результаты" */
+      .btn-info {
+        background-color: #3498db;
+        color: white;
+      }
+      
+      .btn-info:hover {
+        background-color: #2980b9;
+      }
+      
+      /* Обновляем стили для контейнера кнопок */
+      .test-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+      }
+    </style>
   </body>
 </html> 
