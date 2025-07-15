@@ -9,44 +9,52 @@
     <link rel="icon" href="{{ url_for('static', filename='images/icon.png') }}" type="image/png">
   </head>
   <body>
-        <header class="header">
-            <div class="container">
-                <img src="{{ url_for('static', filename='images/logo-mini-without (1).png') }}" class="mephi"/>
-                <a href="{{ url_for('main.index') }}" class="logo">платформа для онлайн-тестирований</a>
-                <nav class="nav">
-                    {% if current_user.is_authenticated %}
-                        <span class="username">{{ current_user.username }}</span>
-                        <a href="{{ url_for('auth.logout') }}" class="nav-link">Выйти</a>
-                    {% else %}
-                        <a href="{{ url_for('auth.login') }}" class="nav-link">Войти</a>
-                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Зарегистрироваться</a>
-                    {% endif %}
-                </nav>
-            </div>
-        </header>
+    <header class="header">
+      <div class="container">
+        <img src="{{ url_for('static', filename='images/logo-mini-without (1).png') }}" class="mephi"/>
+        <a href="{{ url_for('main.index') }}" class="logo">платформа для онлайн-тестирований</a>
+        <nav class="nav">
+          {% if current_user.is_authenticated %}
+            <span class="username">{{ current_user.username }}</span>
+            <a href="{{ url_for('auth.logout') }}" class="nav-link">Выйти</a>
+          {% else %}
+            <a href="{{ url_for('auth.login') }}" class="nav-link">Войти</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Зарегистрироваться</a>
+          {% endif %}
+        </nav>
+      </div>
+    </header>
 
     <h1 class="page-title">Создание нового теста</h1>
-    
+
     <div id="main">
       <div class="actions">
         <button type="button" id="custom-save-btn" class="submit-btn">Сохранить тест</button>
         <button type="button" id="back-btn" class="back-btn">Вернуться на главную</button>
       </div>
-      
+
       <div id='title'>
         <input id="testName" type="text" value="Новый тест" placeholder="Название теста">
       </div>
-      
+
+      <div class="groups-section">
+        <h3 id="groupTitle">Группа, которой доступен тест</h3>
+        <div id="groupContainer">
+          <!-- Поля групп будут добавляться сюда -->
+        </div>
+        <button type="button" onclick="addGroupField()" class="add-group-btn">Добавить группу</button>
+      </div>
+
       <div id="main_container"></div>
 
       <div id="main_button">
         <input type="button" id="addBlock" title="Добавить вопрос" value="+" onclick="createQuestion()">
       </div>
-      
-      <!-- Добавляем блок для сообщений валидации -->
+
+      <!-- Блок для сообщений валидации -->
       <div id="validation-message" class="validation-message"></div>
     </div>
-    
+
     <!-- Модальное окно для подтверждения возврата -->
     <div id="confirmModal" class="modal">
       <div class="modal-content">
@@ -58,43 +66,84 @@
         </div>
       </div>
     </div>
+
     <footer class="footer">
-            <div class="container">
-                <p>&copy; 2025 гр. Б23-302, Б22-302</p>
-            </div>
+      <div class="container">
+        <p>&copy; 2025 гр. Б23-302, Б22-302</p>
+      </div>
     </footer>
-    
+
     <script src="{{ url_for('static', filename='creating_tests/js/main.js') }}"></script>
     <script>
+      // Функция для добавления поля группы
+      function addGroupField() {
+        const groupContainer = document.getElementById("groupContainer");
+        const newGroupField = document.createElement("div");
+        newGroupField.className = "groupField";
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "groupInput";
+        input.name = "groups[]";
+        input.placeholder = "Введите номер группы";
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "deleteGroupButton";
+        deleteButton.textContent = "×";
+        deleteButton.onclick = function() {
+          // Не удаляем, если это последнее поле
+          if (groupContainer.querySelectorAll('.groupField').length > 1) {
+            groupContainer.removeChild(newGroupField);
+            updateGroupDeleteButtons();
+          }
+        };
+
+        newGroupField.appendChild(input);
+        newGroupField.appendChild(deleteButton);
+        groupContainer.appendChild(newGroupField);
+
+        updateGroupDeleteButtons();
+      }
+
       document.addEventListener('DOMContentLoaded', function() {
+        // Инициализация групп
+        const groupContainer = document.getElementById("groupContainer");
+
+        // Добавляем первое поле группы по умолчанию
+        if (groupContainer.querySelectorAll('.groupField').length === 0) {
+          addGroupField();
+        } else {
+          updateGroupDeleteButtons();
+        }
+
         // Обработка модального окна подтверждения
         const modal = document.getElementById("confirmModal");
         const backBtn = document.getElementById("back-btn");
         const cancelBtn = document.getElementById("cancelBtn");
         const confirmBtn = document.getElementById("confirmBtn");
-        
+
         // Показать модальное окно при нажатии на кнопку "Вернуться"
         backBtn.addEventListener("click", function() {
           modal.style.display = "block";
         });
-        
+
         // Скрыть модальное окно при нажатии на "Отмена"
         cancelBtn.addEventListener("click", function() {
           modal.style.display = "none";
         });
-        
+
         // Перейти на главную страницу при подтверждении
         confirmBtn.addEventListener("click", function() {
           window.location.href = "{{ url_for('main.index') }}";
         });
-        
+
         // Закрыть модальное окно при клике вне его
         window.addEventListener("click", function(event) {
           if (event.target == modal) {
             modal.style.display = "none";
           }
         });
-        
+
         // Добавляем обработчик для изменения типа вопроса
         document.addEventListener('change', function(event) {
           if (event.target && event.target.classList.contains('question-type-select')) {
@@ -103,7 +152,6 @@
               const plusButton = block.querySelector('.plusButton');
               if (plusButton) {
                 if (event.target.value === 'text_answer') {
-
                   plusButton.style.display = 'none';
                 } else {
                   plusButton.style.display = 'inline-block';
@@ -112,18 +160,43 @@
             }
           }
         });
-        
+
         // Проверяем все блоки вопросов и скрываем кнопку "Добавить ответ" для вопросов с развернутым ответом
         document.querySelectorAll('.block').forEach(block => {
           const typeSelect = block.querySelector('.question-type-select');
           const plusButton = block.querySelector('.plusButton');
-          
+
           if (typeSelect && plusButton && typeSelect.value === 'text_answer') {
             plusButton.style.display = 'none';
           }
         });
+
+        // Обработчик для кнопки сохранения теста
+        const saveButton = document.getElementById('custom-save-btn');
+        if (saveButton) {
+          saveButton.addEventListener('click', function(e) {
+            // Валидация групп
+            const groupInputs = document.querySelectorAll('.groupInput');
+            let emptyGroups = false;
+            groupInputs.forEach(input => {
+              if (!input.value.trim()) {
+                emptyGroups = true;
+                input.style.borderColor = 'red';
+              } else {
+                input.style.borderColor = '';
+              }
+            });
+
+            if (emptyGroups) {
+              const validationMessage = document.getElementById("validation-message");
+              validationMessage.textContent = 'Все поля групп должны быть заполнены';
+              validationMessage.classList.add('show');
+              e.preventDefault();
+              return;
+            }
+          });
+        }
       });
     </script>
   </body>
 </html>
-

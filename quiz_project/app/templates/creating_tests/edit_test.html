@@ -3,56 +3,57 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>создание нового теста</title>
+    <title>Редактирование теста</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='creating_tests/css/main.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='images/icon.png') }}" type="image/png">
   </head>
   <body>
-        <header class="header">
-            <div class="container">
-                <img src="{{ url_for('static', filename='images/logo-mini-without (1).png') }}" class="mephi"/>
-                <a href="{{ url_for('main.index') }}" class="logo">платформа для онлайн-тестирований</a>
-                <nav class="nav">
-                    {% if current_user.is_authenticated %}
-                        <span class="username">{{ current_user.username }}</span>
-                        <a href="{{ url_for('auth.logout') }}" class="nav-link">Выйти</a>
-                    {% else %}
-                        <a href="{{ url_for('auth.login') }}" class="nav-link">Войти</a>
-                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Зарегистрироваться</a>
-                    {% endif %}
-                </nav>
-            </div>
-        </header>
+    <header class="header">
+      <div class="container">
+        <img src="{{ url_for('static', filename='images/logo-mini-without (1).png') }}" class="mephi"/>
+        <a href="{{ url_for('main.index') }}" class="logo">платформа для онлайн-тестирований</a>
+        <nav class="nav">
+          {% if current_user.is_authenticated %}
+            <span class="username">{{ current_user.username }}</span>
+            <a href="{{ url_for('auth.logout') }}" class="nav-link">Выйти</a>
+          {% else %}
+            <a href="{{ url_for('auth.login') }}" class="nav-link">Войти</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Зарегистрироваться</a>
+          {% endif %}
+        </nav>
+      </div>
+    </header>
 
     <h1 class="page-title" style="text-align: center;">Редактирование теста</h1>
-    
+
     <div id="main">
       <div class="actions">
         <button type="button" id="save-test" class="submit-btn">Сохранить изменения</button>
         <button type="button" id="back-btn" class="back-btn">Вернуться к списку тестов</button>
       </div>
-      <div id="groupContainer">
 
-      </div>
-      <button type="button" onclick="addGroupField()">Добавить</button><br><br>
-
-      
       <div id='title'>
         <input id="testName" type="text" value="{{ test_data.name }}" placeholder="Название теста">
       </div>
-      
+
+      <div class="groups-section">
+        <h3 id="groupTitle">Группа, которой доступен тест</h3>
+        <div id="groupContainer">
+          <!-- Поля групп будут добавляться сюда -->
+        </div>
+        <button type="button" onclick="addGroupField()" class="add-group-btn">Добавить группу</button>
+      </div>
+
       <div id="main_container"></div>
 
       <div id="main_button">
         <input type="button" id="addBlock" title="Добавить вопрос" value="+" onclick="createQuestion()">
       </div>
-      
-      <!-- Добавляем блок для сообщений валидации -->
+
       <div id="validation-message" class="validation-message"></div>
     </div>
-    
-    <!-- Модальное окно для подтверждения возврата -->
+
     <div id="confirmModal" class="modal">
       <div class="modal-content">
         <h3 class="modal-title">Подтверждение</h3>
@@ -63,184 +64,199 @@
         </div>
       </div>
     </div>
+
     <div class="footer">
       © 2025 гр. Б23-302, Б22-302
     </div>
-    
+
     <script src="{{ url_for('static', filename='creating_tests/js/main.js') }}"></script>
     <script>
-      function addGroupField() {
+      // Функция для добавления поля группы
+      function addGroupField(groupValue = '') {
         const groupContainer = document.getElementById("groupContainer");
         const newGroupField = document.createElement("div");
         newGroupField.className = "groupField";
-        newGroupField.innerHTML = `
-          <input type="text" class="groupInput" name="groups[]">
-        `;
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "groupInput";
+        input.name = "groups[]";
+        input.value = groupValue;
+        input.placeholder = "Введите группу";
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "deleteGroupButton";
+        deleteButton.textContent = "×";
+        deleteButton.onclick = function() {
+          // Не удаляем, если это последнее поле
+          if (groupContainer.querySelectorAll('.groupField').length > 1) {
+            groupContainer.removeChild(newGroupField);
+            updateGroupDeleteButtons();
+          }
+        };
+
+        newGroupField.appendChild(input);
+        newGroupField.appendChild(deleteButton);
         groupContainer.appendChild(newGroupField);
+
+        updateGroupDeleteButtons();
       }
-      
-      // Определяем функцию валидации прямо в шаблоне
+
+
+      // Обновленная функция валидации с проверкой групп
       function validateTest() {
         const blocks = document.querySelectorAll('.block');
-        
+
         // Проверка названия теста
         const testName = document.getElementById('testName').value.trim();
         if (!testName) {
           return { isValid: false, errorMessage: 'Название теста не может быть пустым' };
         }
-        
+
+        // Проверка групп
+        const groupInputs = document.querySelectorAll('.groupInput');
+        let emptyGroups = false;
+        groupInputs.forEach(input => {
+          if (!input.value.trim()) {
+            emptyGroups = true;
+            input.style.borderColor = 'red';
+          } else {
+            input.style.borderColor = '';
+          }
+        });
+
+        if (emptyGroups) {
+          return { isValid: false, errorMessage: 'Все поля групп должны быть заполнены' };
+        }
+
         // Проверка наличия вопросов
         if (blocks.length === 0) {
           return { isValid: false, errorMessage: 'Тест должен содержать хотя бы один вопрос' };
         }
-        
+
         // Проверка вопросов и ответов
         for (let i = 0; i < blocks.length; i++) {
           const block = blocks[i];
           const questionText = block.querySelector('.question').value.trim();
           const questionType = block.querySelector('.question-type-select').value;
-          
-          // Проверка текста вопроса
+
           if (!questionText) {
             return { isValid: false, errorMessage: `Вопрос ${i + 1} не может быть пустым` };
           }
-          
-          // Проверки в зависимости от типа вопроса
+
           if (questionType === 'multiple_choice') {
             const answers = block.querySelectorAll('.answer');
-            
-            // Проверка количества ответов
+
             if (answers.length < 2) {
               return { isValid: false, errorMessage: `Вопрос ${i + 1} должен иметь как минимум 2 варианта ответа` };
             }
-            
-            // Проверка текста ответов и наличия выбранного правильного ответа
+
             let hasCorrectAnswer = false;
             for (let j = 0; j < answers.length; j++) {
               const answer = answers[j];
               const answerText = answer.querySelector('input[type="text"]').value.trim();
-              
-              // Проверка текста ответа
+
               if (!answerText) {
                 return { isValid: false, errorMessage: `Ответ ${j + 1} в вопросе ${i + 1} не может быть пустым` };
               }
-              
-              // Проверка наличия правильного ответа
+
               if (answer.querySelector('input[type="radio"]').checked) {
                 hasCorrectAnswer = true;
               }
             }
-            
+
             if (!hasCorrectAnswer) {
               return { isValid: false, errorMessage: `Для вопроса ${i + 1} не выбран правильный ответ` };
             }
           }
         }
-        
+
         return { isValid: true, errorMessage: '' };
       }
-      
+
       // Загрузка существующих данных теста
       const testData = JSON.parse('{{ test_data|tojson|safe }}');
-      
+
       // Функция для загрузки существующих вопросов
       function loadExistingQuestions() {
         // Очистить контейнер
         document.getElementById('main_container').innerHTML = '';
-        
+
         // Сбросить счетчик блоков
         blockCount = 0;
         questionBlocks = [];
-        
+
         // Загрузить существующие вопросы
         if (testData.questions && testData.questions.length > 0) {
           testData.questions.forEach(question => {
-            // Создать новый блок вопроса
             createQuestion();
-            
-            // Получить последний созданный блок
             const block = document.querySelector('.block:last-child');
-            
-            // Установить текст вопроса
             block.querySelector('.question').value = question.question;
             autoResize(block.querySelector('.question'));
-            
-            // Установить тип вопроса
+
             const typeSelect = block.querySelector('.question-type-select');
-            const questionType = question.type || 'multiple_choice'; // По умолчанию - вопрос с вариантами
+            const questionType = question.type || 'multiple_choice';
             typeSelect.value = questionType;
-            
-            // Показать/скрыть соответствующие контейнеры
+
             const answersContainer = block.querySelector('.answers-container');
             const textAnswerContainer = block.querySelector('.text-answer');
             const plusButton = block.querySelector('.plusButton');
-            
+
             if (questionType === 'multiple_choice') {
               answersContainer.style.display = 'block';
               textAnswerContainer.style.display = 'none';
-              plusButton.style.display = 'inline-block'; // Показываем кнопку "Добавить ответ"
-              
-              // Удалить все существующие ответы
+              plusButton.style.display = 'inline-block';
+
               const answers = answersContainer.querySelectorAll('.answer');
               answers.forEach(answer => answersContainer.removeChild(answer));
-              
-              // Добавить ответы из данных
+
               if (question.answers && question.answers.length > 0) {
                 question.answers.forEach((answer, index) => {
                   createAnswer(answersContainer, block);
                   const answerElement = answersContainer.querySelector('.answer:last-child');
                   answerElement.querySelector('input[type="text"]').value = answer.text;
-                  
-                  // Отметить правильный ответ
+
                   if (answer.isCorrect) {
                     answerElement.querySelector('input[type="radio"]').checked = true;
                     answerElement.querySelector('input[type="text"]').classList.add('correct-answer');
                   }
                 });
               } else {
-                // Если нет ответов, создать два пустых
                 createAnswer(answersContainer, block);
                 createAnswer(answersContainer, block);
               }
             } else {
-              // Для вопроса с текстовым ответом
               answersContainer.style.display = 'none';
               textAnswerContainer.style.display = 'block';
-              plusButton.style.display = 'none'; // Скрываем кнопку "Добавить ответ"
-              
-              // Установить текст ответа
+              plusButton.style.display = 'none';
               textAnswerContainer.querySelector('textarea').value = question.textAnswer || '';
             }
-            
-            // Обновить плейсхолдеры и кнопки удаления
+
             updatePlaceholders(block);
             updateDeleteButtons();
           });
         } else {
-          // Если нет вопросов, создать один пустой
           createQuestion();
         }
-        
-        // Загрузить группы
-        if (testData.groups && testData.groups.length > 0) {
-          const groupContainer = document.getElementById('groupContainer');
-          groupContainer.innerHTML = ''; // Очистить контейнер групп
-          
-          testData.groups.forEach((group, index) => {
-            const groupField = document.createElement('div');
-            groupField.className = 'groupField';
-            groupField.innerHTML = `
-              <input type="text" class="groupInput" name="groups[]" value="${group}">
-            `;
-            groupContainer.appendChild(groupField);
-          });
-        }
       }
-      
-      // Загрузить существующие вопросы при загрузке страницы
+
       document.addEventListener('DOMContentLoaded', function() {
+        // Инициализация групп
+        const groupContainer = document.getElementById("groupContainer");
+
+        // Загружаем группы из данных теста
+        if (testData.groups && testData.groups.length > 0) {
+          testData.groups.forEach(group => {
+            addGroupField(group);
+          });
+        } else {
+          // Добавляем первое поле группы по умолчанию
+          addGroupField();
+        }
+
+        // Загружаем вопросы
         loadExistingQuestions();
-        
+
         // Обработка модального окна подтверждения
         const modal = document.getElementById("confirmModal");
         const backBtn = document.getElementById("back-btn");
@@ -248,113 +264,89 @@
         const confirmBtn = document.getElementById("confirmBtn");
         const validationMessage = document.getElementById("validation-message");
         const saveBtn = document.getElementById("save-test");
-        
-        // Показать модальное окно при нажатии на кнопку "Вернуться"
+
         backBtn.addEventListener("click", function() {
           modal.style.display = "block";
         });
-        
-        // Скрыть модальное окно при нажатии на "Отмена"
+
         cancelBtn.addEventListener("click", function() {
           modal.style.display = "none";
         });
-        
-        // Перейти к списку тестов при подтверждении
+
         confirmBtn.addEventListener("click", function() {
           window.location.href = "{{ url_for('creating_tests.my_tests') }}";
         });
-        
-        // Закрыть модальное окно при клике вне его
+
         window.addEventListener("click", function(event) {
           if (event.target == modal) {
             modal.style.display = "none";
           }
         });
-        
-        // Удаляем все существующие обработчики событий с кнопки сохранения
-        saveBtn.replaceWith(saveBtn.cloneNode(true));
-        
-        // Получаем новую ссылку на кнопку после клонирования
-        const newSaveBtn = document.getElementById("save-test");
-        
-        // Добавляем новый обработчик событий
-        newSaveBtn.addEventListener("click", function(e) {
-          // Предотвращаем стандартное поведение кнопки
+
+        // Обработчик для кнопки сохранения теста
+        saveBtn.addEventListener("click", function(e) {
           e.preventDefault();
           e.stopPropagation();
-          
-          // Валидация теста перед отправкой
+
           const validation = validateTest();
-          
+
           if (!validation.isValid) {
-            // Показываем сообщение об ошибке
             validationMessage.textContent = validation.errorMessage;
             validationMessage.classList.add('show');
-
-            
-            // Прерываем выполнение функции
             return false;
           }
-          
-          // Если валидация пройдена, скрываем сообщение об ошибке
+
           validationMessage.classList.remove('show');
-          
-          // Собираем данные теста
+
           const updatedTestData = {
             name: document.getElementById('testName').value,
             questions: [],
             groups: []
           };
 
-          // Получаем значения из полей групп
           const groupInputs = document.querySelectorAll(".groupInput");
           const groups = Array.from(groupInputs).map(input => input.value);
           updatedTestData.groups = groups;
-          
-          // Получаем все блоки вопросов
+
           const blocks = document.querySelectorAll('.block');
           blocks.forEach((block, blockIndex) => {
             const questionText = block.querySelector('.question').value;
             const questionType = block.querySelector('.question-type-select').value;
-            
-            // Создаем объект вопроса с общими свойствами
+
             const questionObj = {
               question: questionText,
               type: questionType
             };
-            
+
             if (questionType === 'multiple_choice') {
-              // Для вопроса с вариантами ответов
               const answers = [];
               const answerInputs = block.querySelectorAll('.answer');
-              
+
               let correctAnswerIndex = -1;
-              
+
               answerInputs.forEach((answerInput, index) => {
                 const answerText = answerInput.querySelector('input[type="text"]').value;
                 const isSelected = answerInput.querySelector('input[type="radio"]').checked;
-                
+
                 answers.push({
                   text: answerText,
                   isCorrect: isSelected
                 });
-                
+
                 if (isSelected) {
                   correctAnswerIndex = index;
                 }
               });
-              
+
               questionObj.answers = answers;
               questionObj.correctAnswerIndex = correctAnswerIndex;
             } else {
-              // Для вопроса с текстовым ответом
               questionObj.textAnswer = block.querySelector('.text-answer textarea').value || '';
             }
-            
+
             updatedTestData.questions.push(questionObj);
           });
-          
-          // Отправляем данные на сервер только если валидация пройдена
+
           fetch('/edit-test/{{ test.id }}', {
             method: 'POST',
             headers: {

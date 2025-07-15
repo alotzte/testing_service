@@ -101,9 +101,9 @@
     border-radius: 4px;
 }
 
-.deleteButton {
+.deleteButton, .deleteGroupButton {
     margin-left: 10px;
-    background-color: #fff;
+    background-color: transparent;
     color: #2c3e50;
     border: none;
     border-radius: 50%;
@@ -302,4 +302,51 @@
     height: 100%;
   }
 
+  .groupField {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+  }
 
+  .groupInput {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-right: 5px;
+    flex-grow: 1;
+  }
+
+  .deleteGroupButton:hover {
+    background: #eee;
+  }
+
+  .deleteGroupButton[disabled] {
+    background: #cccccc;
+    cursor: not-allowed;
+  }
+
+  .add-group-btn {
+    background: #2c3e50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 15px;
+  }
+
+  .add-group-btn:hover {
+    background: #263340;
+  }
+
+  .groups-section {
+    margin: 20px 0;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 5px;
+  }
+
+  .groups-section h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+  }

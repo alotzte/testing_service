@@ -245,13 +245,25 @@ function renumberBlocks() {
 // Функция валидации теста
 function validateTest() {
   const blocks = document.querySelectorAll('.block');
-  
+
   // Проверка названия теста
   const testName = document.getElementById('testName').value.trim();
   if (!testName) {
     return { isValid: false, errorMessage: 'Название теста не может быть пустым' };
   }
-  
+  // Проверка групп
+  const groupInputs = document.querySelectorAll('.groupInput');
+  let hasEmptyGroup = false;
+  groupInputs.forEach(input => {
+    if (!input.value.trim()) {
+      hasEmptyGroup = true;
+    }
+  });
+
+  if (hasEmptyGroup) {
+    return { isValid: false, errorMessage: 'Все поля групп должны быть заполнены' };
+  }
+
   // Проверка наличия вопросов
   if (blocks.length === 0) {
     return { isValid: false, errorMessage: 'Тест должен содержать хотя бы один вопрос' };
@@ -307,12 +319,52 @@ function addGroupField() {
   const groupContainer = document.getElementById("groupContainer");
   const newGroupField = document.createElement("div");
   newGroupField.className = "groupField";
-  newGroupField.innerHTML = `
-    <input type="text" class="groupInput" name="groups[]">
-  `;
 
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "groupInput";
+  input.name = "groups[]";
+  input.placeholder = "Введите группу";
+
+  const deleteButton = document.createElement("button");
+  deleteButton.className = "deleteGroupButton";
+  deleteButton.textContent = "×";
+  deleteButton.onclick = function() {
+    // Не удаляем, если это последнее поле
+    if (groupContainer.querySelectorAll('.groupField').length > 1) {
+      groupContainer.removeChild(newGroupField);
+      updateGroupDeleteButtons();
+    }
+  };
+
+  newGroupField.appendChild(input);
+  newGroupField.appendChild(deleteButton);
   groupContainer.appendChild(newGroupField);
+
+  updateGroupDeleteButtons();
 }
+
+
+  // Функция для обновления состояния кнопок удаления групп
+  function updateGroupDeleteButtons() {
+    const groupFields = document.querySelectorAll('.groupField');
+    const deleteButtons = document.querySelectorAll('.deleteGroupButton');
+
+    // Скрываем кнопки удаления, если только одно поле
+    if (groupFields.length <= 1) {
+      deleteButtons.forEach(btn => {
+        btn.style.display = 'none';
+        btn.disabled = true;
+        groupTitle.textContent = 'Группа, которой доступен тест';
+      });
+    } else {
+      deleteButtons.forEach(btn => {
+        btn.style.display = 'inline-block';
+        btn.disabled = false;
+        groupTitle.textContent = 'Группы, которым доступен тест';
+      });
+    }
+  }
 
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
