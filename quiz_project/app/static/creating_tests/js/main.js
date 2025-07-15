@@ -67,30 +67,7 @@ function createQuestion() {
     autoResize(this);
   });
   
-  // Добавляем селектор типа вопроса
-  var typeSelectContainer = document.createElement('div');
-  typeSelectContainer.className = "question-type-container";
-  
-  var typeSelectLabel = document.createElement('label');
-  typeSelectLabel.textContent = "Тип вопроса: ";
-  
-  var typeSelect = document.createElement('select');
-  typeSelect.className = "question-type-select";
-  
-  var optionMultipleChoice = document.createElement('option');
-  optionMultipleChoice.value = "multiple_choice";
-  optionMultipleChoice.textContent = "С вариантами ответа";
-  
-  var optionTextAnswer = document.createElement('option');
-  optionTextAnswer.value = "text_answer";
-  optionTextAnswer.textContent = "С развернутым ответом";
-  
-  typeSelect.appendChild(optionMultipleChoice);
-  typeSelect.appendChild(optionTextAnswer);
-  
-  typeSelectContainer.appendChild(typeSelectLabel);
-  typeSelectContainer.appendChild(typeSelect);
-  
+
   // Создаем контейнер для ответов
   var answersContainer = document.createElement('div');
   answersContainer.className = "answers-container";
@@ -130,10 +107,26 @@ function createQuestion() {
     updateDeleteButtons();
   };
 
+  var typeSelect = document.createElement('select');
+  typeSelect.className = "question-type-select";
+
+  var optionMultipleChoice = document.createElement('option');
+  optionMultipleChoice.value = "multiple_choice";
+  optionMultipleChoice.textContent = "С вариантами ответа";
+
+  var optionTextAnswer = document.createElement('option');
+  optionTextAnswer.value = "text_answer";
+  optionTextAnswer.textContent = "С развернутым ответом";
+
+  typeSelect.appendChild(optionMultipleChoice);
+  typeSelect.appendChild(optionTextAnswer);
+
   var footbar = document.createElement('div');
   footbar.className = 'footbar';
   footbar.appendChild(plusButton);
+  footbar.appendChild(typeSelect);
   footbar.appendChild(deleteQuestion);
+
 
   // Обработчик изменения типа вопроса
   typeSelect.addEventListener('change', function() {
@@ -155,7 +148,6 @@ function createQuestion() {
   });
 
   form.appendChild(question);
-  form.appendChild(typeSelectContainer);
   form.appendChild(answersContainer);
   form.appendChild(textAnswerContainer);
   
