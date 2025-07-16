@@ -47,10 +47,11 @@
             <!-- Поле группы (будет показано только для "user") -->
             <div class="form-group" id="group-field">
                 <label>Группа</label>
-                {{ form.group(class="form-control" + (" is-invalid" if form.group.errors else "")) }}
+                {{ form.group(class="form-control" + (" is-invalid" if form.group.errors else ""), placeholder="Б23-302") }}
                 {% for error in form.group.errors %}
                     <div class="error-message">{{ error }}</div>
                 {% endfor %}
+                <div class="form-text">Формат: буква, две цифры, дефис, три цифры (например, Б23-302)</div>
             </div>
         </div>
         <br>
@@ -58,4 +59,51 @@
         <button type="submit" class="submit-btn">Зарегистрироваться</button>
     </form>
 </div>
+
+<script>
+    // Функция для скрытия/отображения поля группы в зависимости от выбранной роли
+    function toggleGroupField() {
+        const userRoleSelected = document.getElementById('role-0').checked;
+        const groupField = document.getElementById('group-field');
+        
+        if (userRoleSelected) {
+            groupField.style.display = 'block';
+            document.getElementById('{{ form.group.id }}').setAttribute('required', 'required');
+        } else {
+            groupField.style.display = 'none';
+            document.getElementById('{{ form.group.id }}').removeAttribute('required');
+            document.getElementById('{{ form.group.id }}').value = '';
+        }
+    }
+    
+    // Добавляем обработчики событий для радио-кнопок
+    document.addEventListener('DOMContentLoaded', function() {
+        const roleRadios = document.querySelectorAll('.role-radio');
+        
+        // Инициализация при загрузке страницы
+        toggleGroupField();
+        
+        // Обработчики изменения радио-кнопок
+        roleRadios.forEach(function(radio) {
+            radio.addEventListener('change', toggleGroupField);
+        });
+        
+        // Валидация формата группы при вводе
+        const groupInput = document.getElementById('{{ form.group.id }}');
+        groupInput.addEventListener('input', function(e) {
+            const value = e.target.value;
+            const pattern = /^[А-ЯA-Z]{0,1}\d{0,2}-?\d{0,3}$/;
+            
+            if (!pattern.test(value)) {
+                // Если формат не соответствует, откатываем последний символ
+                e.target.value = value.slice(0, -1);
+            }
+            
+            // Автоматически добавляем дефис после первых трех символов
+            if (value.length === 3 && !value.includes('-')) {
+                e.target.value = value + '-';
+            }
+        });
+    });
+</script>
 {% endblock %}

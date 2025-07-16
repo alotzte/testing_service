@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
 from wtforms import BooleanField, StringField, PasswordField, SubmitField, SelectField, IntegerField, FieldList, FormField, RadioField
-from wtforms.validators import DataRequired, Length, EqualTo, ValidationError, NumberRange, Optional
+from wtforms.validators import DataRequired, Length, EqualTo, ValidationError, NumberRange, Optional, Regexp
 from .models import User, Test
+import re
 
 def validate_group(form, field):  # form и field - обязательные аргументы для валидатора WTForms
     group = field.data
@@ -12,9 +13,15 @@ def validate_group(form, field):  # form и field - обязательные а�
         field.data = ""
         return
     
-    # Если пользователь не админ и группа не пустая, проверяем формат
-    if group and (len(group) != 7 or group[0] not in ("Б", "М", "С") or group[3] != "-"):
-        raise ValidationError("Введенная группа некорректна. Формат: Б00-000")
+    # Если пользователь не админ, группа обязательна
+    if role == "user" and not group:
+        raise ValidationError("Для студента необходимо указать группу")
+    
+    # Проверяем формат группы (например, Б23-302)
+    if group:
+        pattern = re.compile(r'^[А-ЯA-Z]{1}\d{2}-\d{3}$')
+        if not pattern.match(group):
+            raise ValidationError("Неверный формат группы. Пример: Б23-302")
 
 class RegistrationForm(FlaskForm):
     """Класс для формы регистрации."""
