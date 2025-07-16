@@ -225,6 +225,10 @@ def delete_test(test_id):
         return jsonify({"success": False, "message": "У вас нет доступа к удалению этого теста."}), 403
     
     try:
+        # Сначала удаляем все связанные результаты тестов
+        TestResult.query.filter_by(test_id=test_id).delete()
+        
+        # Затем удаляем сам тест
         db.session.delete(test)
         db.session.commit()
         return jsonify({"success": True, "message": "Тест успешно удален"}), 200
@@ -278,16 +282,24 @@ def grade_result(result_id):
                 
                 if question.get('type') == 'text':
                     question_id = f'question_{i}'
-                    is_correct = request.form.get(f'{question_id}_is_correct') == 'true'
+                    # Получаем баллы, выставленные преподавателем
+                    awarded_points = int(request.form.get(f'{question_id}_points', 0))
                     feedback = request.form.get(f'{question_id}_feedback', '')
                     
-                    # Update the question result
+                    # Определяем, считается ли ответ правильным (хотя бы частично)
+                    is_correct = awarded_points > 0
+                    
+                    # Сохраняем информацию о баллах и статусе
                     question['is_correct'] = is_correct
+                    question['awarded_points'] = awarded_points
                     question['feedback'] = feedback
-                
-                # Count correct answers for all question types
-                if question.get('is_correct'):
-                    current_score += question_points
+                    
+                    # Добавляем баллы к общему счету
+                    current_score += awarded_points
+                else:
+                    # Для других типов вопросов оставляем прежнюю логику
+                    if question.get('is_correct'):
+                        current_score += question_points
             
             # Update the score with the new total of correct answers
             new_score = current_score

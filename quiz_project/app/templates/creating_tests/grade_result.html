@@ -61,18 +61,22 @@
                             <div class="grading-controls">
                                 <div class="grade-options">
                                     <div class="form-group">
-                                        <label>Оценка ответа ({{ question.points }} балл{% if question.points > 1 %}{% if question.points < 5 %}а{% else %}ов{% endif %}{% endif %}):</label>
-                                        <div class="radio-group">
-                                            <label class="radio-label">
-                                                <input type="radio" name="question_{{ loop.index0 }}_is_correct" value="true" 
-                                                       {% if question.is_correct %}checked{% endif %}>
-                                                Верно
-                                            </label>
-                                            <label class="radio-label">
-                                                <input type="radio" name="question_{{ loop.index0 }}_is_correct" value="false"
-                                                       {% if not question.is_correct %}checked{% endif %}>
-                                                Неверно
-                                            </label>
+                                        <label>Оценка ответа (максимум {{ question.points }} балл{% if question.points > 1 %}{% if question.points < 5 %}а{% else %}ов{% endif %}{% endif %}):</label>
+                                        <div class="points-select-container">
+                                            <select name="question_{{ loop.index0 }}_points" class="points-select">
+                                                {% for i in range(question.points + 1) %}
+                                                    <option value="{{ i }}" 
+                                                        {% if question.awarded_points is defined and i == question.awarded_points %}
+                                                            selected
+                                                        {% elif question.is_correct and i == question.points and question.awarded_points is not defined %}
+                                                            selected
+                                                        {% elif not question.is_correct and i == 0 and question.awarded_points is not defined %}
+                                                            selected
+                                                        {% endif %}>
+                                                        {{ i }} балл{% if i > 1 %}{% if i < 5 %}а{% else %}ов{% endif %}{% endif %}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
@@ -271,17 +275,29 @@
         margin-bottom: 15px;
     }
     
-    .radio-group {
-        display: flex;
-        gap: 20px;
-        margin-top: 5px;
-    }
-    
-    .radio-label {
+    .points-select-container {
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 10px;
+    }
+
+    .points-select {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        width: 150px;
         cursor: pointer;
+    }
+    
+    .points-select:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+    }
+    
+    .points-select option {
+        padding: 8px;
     }
     
     .feedback-section {

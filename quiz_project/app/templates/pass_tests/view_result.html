@@ -130,6 +130,15 @@
                                 </span>
                             </div>
                             
+                            {% if question_result.awarded_points is defined %}
+                            <div class="answer-item points-awarded">
+                                <span class="answer-label">Баллы за ответ:</span>
+                                <span class="answer-value points-value">
+                                    {{ question_result.awarded_points }} из {{ question_result.points }} возможных
+                                </span>
+                            </div>
+                            {% endif %}
+                            
                             {% if question_result.feedback %}
                             <div class="answer-item feedback">
                                 <span class="answer-label">Комментарий преподавателя:</span>
@@ -415,6 +424,17 @@
         color: #3498db;
         font-style: italic;
         background-color: #eaf2f8;
+    }
+
+    .points-awarded {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #ddd;
+    }
+
+    .points-value {
+        font-weight: bold;
+        color: #27ae60; /* Green color for awarded points */
     }
     
     .back-links {
