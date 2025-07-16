@@ -252,7 +252,10 @@ def results():
                 'score': result_data.get('score', 0),
                 'total': result_data.get('total', 0),
                 'percentage': result_data.get('percentage', 0),
-                'completed_at': result_data.get('completed_at', '')
+                'completed_at': result_data.get('completed_at', ''),
+                'is_graded': result.is_graded,
+                'graded_by': result.graded_by,
+                'graded_at': result.graded_at.strftime('%Y-%m-%d %H:%M:%S') if result.graded_at else None
             })
     
     return render_template('pass_tests/results.html', results=results_data)
@@ -282,4 +285,9 @@ def view_result(result_id):
                           test_name=test_info.get('name', 'Без названия'),
                           test_author=test.test_author,
                           result=result_data,
-                          student=User.query.get(result.student_id))
+                          result_id=result.id,
+                          test_id=test.id,
+                          student=User.query.get(result.student_id),
+                          is_graded=result.is_graded,
+                          graded_by=result.graded_by,
+                          graded_at=result.graded_at.strftime('%Y-%m-%d %H:%M:%S') if result.graded_at else None)

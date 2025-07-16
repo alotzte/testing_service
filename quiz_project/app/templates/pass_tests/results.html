@@ -16,6 +16,9 @@
                     </div>
                     <div class="result-info">
                         <p>Пройден: {{ result.completed_at }}</p>
+                        {% if result.is_graded %}
+                        <p>Проверено преподавателем: {{ result.graded_at }}</p>
+                        {% endif %}
                     </div>
                     <div class="result-actions">
                         <a href="{{ url_for('pass_tests.view_result', result_id=result.id) }}" class="btn btn-primary">Просмотреть детали</a>

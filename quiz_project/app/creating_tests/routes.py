@@ -149,7 +149,10 @@ def test_results(test_id):
                 'score': result_data.get('score', 0),
                 'total': result_data.get('total', 0),
                 'percentage': result_data.get('percentage', 0),
-                'completed_at': result_data.get('completed_at', '')
+                'completed_at': result_data.get('completed_at', ''),
+                'is_graded': result.is_graded,
+                'graded_by': result.graded_by,
+                'graded_at': result.graded_at.strftime('%Y-%m-%d %H:%M:%S') if result.graded_at else None
             })
         except Exception as e:
             print(f"Error parsing result {result.id}: {str(e)}")
@@ -266,9 +269,10 @@ def grade_result(result_id):
         try:
             # Initialize variables to track changes
             original_score = result_data.get('score', 0)
-            additional_points = 0
+            total_questions = result_data.get('total', 0)
+            correct_answers = 0
             
-            # Process each question
+            # Process each question and recalculate the total score
             for i, question in enumerate(result_data.get('questions', [])):
                 if question.get('type') == 'text':
                     question_id = f'question_{i}'
@@ -278,18 +282,18 @@ def grade_result(result_id):
                     # Update the question result
                     question['is_correct'] = is_correct
                     question['feedback'] = feedback
-                    
-                    # Add point if marked as correct and wasn't correct before
-                    if is_correct and not question.get('is_correct', False):
-                        additional_points += 1
-                    # Remove point if marked as incorrect but was correct before
-                    elif not is_correct and question.get('is_correct', False):
-                        additional_points -= 1
+                
+                # Count correct answers for all question types
+                if question.get('is_correct'):
+                    correct_answers += 1
             
-            # Update the score
-            new_score = original_score + additional_points
+            # Update the score with the new total of correct answers
+            new_score = correct_answers
+            percentage = round((new_score / total_questions) * 100) if total_questions > 0 else 0
+            
+            # Update the result data
             result_data['score'] = new_score
-            result_data['percentage'] = round((new_score / result_data.get('total', 1)) * 100)
+            result_data['percentage'] = percentage
             
             # Update the result in the database
             result.test_result = json.dumps(result_data, ensure_ascii=False)
@@ -300,7 +304,7 @@ def grade_result(result_id):
             
             db.session.commit()
             
-            flash('Результат теста успешно проверен!', 'success')
+            flash(f'Результат теста успешно проверен! Новый результат: {new_score}/{total_questions} ({percentage}%)', 'success')
             return redirect(url_for('creating_tests.test_results', test_id=test.id))
             
         except Exception as e:
@@ -309,6 +313,7 @@ def grade_result(result_id):
     
     return render_template('creating_tests/grade_result.html',
                           result_id=result_id,
+                          test_id=test.id,
                           test_name=test_info.get('name', 'Без названия'),
                           student=student,
                           result=result_data)

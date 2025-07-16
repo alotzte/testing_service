@@ -23,6 +23,20 @@
                 {{ result.score }} / {{ result.total }} ({{ result.percentage }}%)
             </span>
         </div>
+        {% if is_graded %}
+        <div class="summary-item">
+            <span class="label">Проверено:</span>
+            <span class="value">{{ graded_by }} ({{ graded_at }})</span>
+        </div>
+        {% endif %}
+        
+        {% if current_user.role == 'admin' and current_user.username == test_author %}
+        <div class="admin-actions">
+            <a href="{{ url_for('creating_tests.grade_result', result_id=result_id) }}" class="btn btn-primary">
+                {% if is_graded %}Изменить оценку{% else %}Проверить вручную{% endif %}
+            </a>
+        </div>
+        {% endif %}
     </div>
     
     <h2 class="section-title">Детали по вопросам</h2>
@@ -112,6 +126,15 @@
                                     {{ question_result.correct_answer }}
                                 </span>
                             </div>
+                            
+                            {% if question_result.feedback %}
+                            <div class="answer-item feedback">
+                                <span class="answer-label">Комментарий преподавателя:</span>
+                                <span class="answer-value feedback-text">
+                                    {{ question_result.feedback }}
+                                </span>
+                            </div>
+                            {% endif %}
                         </div>
                     {% endif %}
                 </div>
@@ -182,6 +205,14 @@
     .poor-score {
         background-color: #e74c3c;
         color: white;
+    }
+    
+    .admin-actions {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #ddd;
+        display: flex;
+        justify-content: flex-end;
     }
     
     .section-title {
@@ -339,6 +370,12 @@
         margin-bottom: 15px;
     }
     
+    .answer-item.feedback {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px dashed #ddd;
+    }
+    
     .answer-label {
         display: block;
         font-weight: bold;
@@ -361,6 +398,12 @@
     .wrong-text {
         color: #e74c3c;
         text-decoration: line-through;
+    }
+    
+    .feedback-text {
+        color: #3498db;
+        font-style: italic;
+        background-color: #eaf2f8;
     }
     
     .back-links {
