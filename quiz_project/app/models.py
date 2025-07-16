@@ -59,6 +59,10 @@ class TestResult(db.Model):
     student_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     test_result = db.Column(db.Text)  # Для SQLite используем Text вместо JSON для хранения результатов
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    is_graded = db.Column(db.Boolean, default=False)  # Флаг, указывающий, проверен ли тест вручную
+    manual_score = db.Column(db.Integer, nullable=True)  # Оценка, выставленная вручную
+    graded_at = db.Column(db.DateTime, nullable=True)  # Когда был проверен тест
+    graded_by = db.Column(db.String(80), nullable=True)  # Кто проверил тест
     
     # Определяем отношения для удобства доступа
     test = db.relationship('Test', backref=db.backref('results', lazy=True))

@@ -49,7 +49,16 @@ def my_tests():
     
     # Получаем список пройденных пользователем тестов
     completed_tests = TestResult.query.filter_by(student_id=current_user.id).all()
-    completed_test_ids = [result.test_id for result in completed_tests]
+    
+    # Создаем словарь с id теста и id результата
+    completed_test_ids = {}
+    for result in completed_tests:
+        completed_test_ids[result.test_id] = result.id
+    
+    # Добавляем информацию о результатах к доступным тестам
+    for test in available_tests:
+        if test['id'] in completed_test_ids:
+            test['result_id'] = completed_test_ids[test['id']]
     
     return render_template('pass_tests/my_tests.html', 
                           available_tests=available_tests,

@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
 from functools import wraps
+from datetime import datetime
 
 from ..models import User, Test, TestResult
 from .. import db
@@ -227,4 +228,88 @@ def delete_test(test_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"success": False, "message": f"Ошибка при удалении теста: {str(e)}"}), 500
+
+@creating_tests_bp.route('/grade-result/<int:result_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def grade_result(result_id):
+    """
+    Page for administrators to manually grade test results with open-ended answers
+    """
+    # Get the test result
+    result = TestResult.query.get_or_404(result_id)
+    
+    # Get the test
+    test = Test.query.get_or_404(result.test_id)
+    
+    # Check if the current user is the author of the test
+    if test.test_author != current_user.username:
+        flash('У вас нет доступа к этому результату теста.', 'danger')
+        return redirect(url_for('creating_tests.my_tests'))
+    
+    # Get the student
+    student = User.query.get(result.student_id)
+    
+    # Parse test info and result data
+    test_info = json.loads(test.test_info)
+    result_data = json.loads(result.test_result)
+    
+    # Check if there are any text questions
+    has_text_questions = any(q.get('type') == 'text' for q in result_data.get('questions', []))
+    
+    if not has_text_questions:
+        flash('В этом тесте нет вопросов с развернутым ответом для проверки.', 'info')
+        return redirect(url_for('creating_tests.test_results', test_id=test.id))
+    
+    if request.method == 'POST':
+        # Get the manual grades from the form
+        try:
+            # Initialize variables to track changes
+            original_score = result_data.get('score', 0)
+            additional_points = 0
+            
+            # Process each question
+            for i, question in enumerate(result_data.get('questions', [])):
+                if question.get('type') == 'text':
+                    question_id = f'question_{i}'
+                    is_correct = request.form.get(f'{question_id}_is_correct') == 'true'
+                    feedback = request.form.get(f'{question_id}_feedback', '')
+                    
+                    # Update the question result
+                    question['is_correct'] = is_correct
+                    question['feedback'] = feedback
+                    
+                    # Add point if marked as correct and wasn't correct before
+                    if is_correct and not question.get('is_correct', False):
+                        additional_points += 1
+                    # Remove point if marked as incorrect but was correct before
+                    elif not is_correct and question.get('is_correct', False):
+                        additional_points -= 1
+            
+            # Update the score
+            new_score = original_score + additional_points
+            result_data['score'] = new_score
+            result_data['percentage'] = round((new_score / result_data.get('total', 1)) * 100)
+            
+            # Update the result in the database
+            result.test_result = json.dumps(result_data, ensure_ascii=False)
+            result.is_graded = True
+            result.manual_score = new_score
+            result.graded_at = datetime.now()
+            result.graded_by = current_user.username
+            
+            db.session.commit()
+            
+            flash('Результат теста успешно проверен!', 'success')
+            return redirect(url_for('creating_tests.test_results', test_id=test.id))
+            
+        except Exception as e:
+            flash(f'Ошибка при сохранении оценок: {str(e)}', 'danger')
+            print(traceback.format_exc())
+    
+    return render_template('creating_tests/grade_result.html',
+                          result_id=result_id,
+                          test_name=test_info.get('name', 'Без названия'),
+                          student=student,
+                          result=result_data)
 

@@ -16,7 +16,11 @@
                         <p>Количество вопросов: {{ test.questions_count }}</p>
                     </div>
                     <div class="test-actions">
-                        <a href="{{ url_for('pass_tests.take_test', test_id=test.id) }}" class="btn btn-primary">Пройти тест</a>
+                        {% if test.id in completed_test_ids.keys() %}
+                            <a href="{{ url_for('pass_tests.view_result', result_id=test.result_id) }}" class="btn btn-info">Результаты</a>
+                        {% else %}
+                            <a href="{{ url_for('pass_tests.take_test', test_id=test.id) }}" class="btn btn-primary">Пройти тест</a>
+                        {% endif %}
                     </div>
                 </div>
             {% endfor %}
@@ -118,6 +122,15 @@
     
     .btn-secondary:hover {
         background-color: #7f8c8d;
+    }
+    
+    .btn-info {
+        background-color: #3498db;
+        color: white;
+    }
+    
+    .btn-info:hover {
+        background-color: #2980b9;
     }
     
     .no-tests {
