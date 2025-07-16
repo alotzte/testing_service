@@ -197,6 +197,13 @@
             const typeSelect = block.querySelector('.question-type-select');
             const questionType = question.type || 'multiple_choice';
             typeSelect.value = questionType;
+            
+            // Устанавливаем баллы за вопрос
+            const pointsSelect = block.querySelector('.points-select');
+            if (pointsSelect) {
+              const points = question.points || 1;
+              pointsSelect.value = points;
+            }
 
             const answersContainer = block.querySelector('.answers-container');
             const textAnswerContainer = block.querySelector('.text-answer');
@@ -312,10 +319,12 @@
           blocks.forEach((block, blockIndex) => {
             const questionText = block.querySelector('.question').value;
             const questionType = block.querySelector('.question-type-select').value;
+            const points = parseInt(block.querySelector('.points-select').value, 10) || 1;
 
             const questionObj = {
               question: questionText,
-              type: questionType
+              type: questionType,
+              points: points
             };
 
             if (questionType === 'multiple_choice') {

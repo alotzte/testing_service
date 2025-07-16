@@ -61,12 +61,43 @@ function createQuestion() {
   var form = document.createElement('div');
   form.className = "form";
 
+  var questionHeader = document.createElement('div');
+  questionHeader.className = "question-header";
+
   var question = document.createElement('textarea');
   question.className = "question";
   question.addEventListener('input', function() {
     autoResize(this);
   });
   
+  // Добавляем поле для выбора баллов за вопрос
+  var pointsContainer = document.createElement('div');
+  pointsContainer.className = "points-container";
+  
+  var pointsLabel = document.createElement('label');
+  pointsLabel.textContent = "Баллы:";
+  pointsLabel.className = "points-label";
+  
+  var pointsSelect = document.createElement('select');
+  pointsSelect.className = "points-select";
+  
+  // Добавляем варианты баллов от 1 до 10
+  for (let i = 1; i <= 10; i++) {
+    var option = document.createElement('option');
+    option.value = i;
+    option.textContent = i;
+    // По умолчанию выбираем 1 балл
+    if (i === 1) {
+      option.selected = true;
+    }
+    pointsSelect.appendChild(option);
+  }
+  
+  pointsContainer.appendChild(pointsLabel);
+  pointsContainer.appendChild(pointsSelect);
+  
+  questionHeader.appendChild(question);
+  questionHeader.appendChild(pointsContainer);
 
   // Создаем контейнер для ответов
   var answersContainer = document.createElement('div');
@@ -154,7 +185,7 @@ function createQuestion() {
     }
   });
 
-  form.appendChild(question);
+  form.appendChild(questionHeader);
   form.appendChild(answersContainer);
   form.appendChild(textAnswerContainer);
   
@@ -418,11 +449,13 @@ document.addEventListener('DOMContentLoaded', function() {
       blocks.forEach((block, blockIndex) => {
         const questionText = block.querySelector('.question').value;
         const questionType = block.querySelector('.question-type-select').value;
+        const points = parseInt(block.querySelector('.points-select').value, 10) || 1;
         
         // Создаем объект вопроса с общими свойствами
         const questionObj = {
           question: questionText,
-          type: questionType
+          type: questionType,
+          points: points // Добавляем баллы за вопрос
         };
         
         if (questionType === 'multiple_choice') {

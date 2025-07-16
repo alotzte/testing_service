@@ -350,3 +350,55 @@
     margin-top: 0;
     margin-bottom: 10px;
   }
+
+/* Добавляем стили для контейнера заголовка вопроса */
+.question-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.question {
+  flex: 1;
+  min-height: 60px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 16px;
+  margin-bottom: 10px;
+  width: calc(100% - 120px); /* Уменьшаем ширину для размещения поля баллов */
+}
+
+/* Стили для контейнера с баллами */
+.points-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 10px;
+  min-width: 100px;
+  padding: 5px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  background-color: #f8f9fa;
+}
+
+.points-label {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.points-select {
+  width: 80px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  text-align: center;
+  background-color: white;
+}

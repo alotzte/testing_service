@@ -56,6 +56,9 @@
                                 Текстовый ответ
                             {% endif %}
                         </span>
+                        <span class="points-badge">
+                            {{ question_result.points }} балл{% if question_result.points > 1 %}{% if question_result.points < 5 %}а{% else %}ов{% endif %}{% endif %}
+                        </span>
                         <span class="result-badge {% if question_result.is_correct %}correct{% else %}wrong{% endif %}">
                             {% if question_result.is_correct %}Верно{% else %}Неверно{% endif %}
                         </span>
@@ -271,6 +274,14 @@
         padding: 3px 8px;
         border-radius: 4px;
         border: 1px solid #dee2e6;
+    }
+    
+    .points-badge {
+        font-size: 12px;
+        background-color: #3498db;
+        color: white;
+        padding: 3px 8px;
+        border-radius: 4px;
     }
     
     .result-badge {

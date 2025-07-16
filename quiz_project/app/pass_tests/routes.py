@@ -112,6 +112,10 @@ def take_test(test_id):
                 if not question.get('text'):
                     question['text'] = question.get('question', 'Без текста')
                 
+                # Проверяем наличие баллов за вопрос
+                if not question.get('points'):
+                    question['points'] = 1  # По умолчанию 1 балл
+                
             elif question.get('type') == 'text_answer':
                 # Вопрос с текстовым ответом
                 question['type'] = 'text'
@@ -120,6 +124,10 @@ def take_test(test_id):
                 # Добавляем текст вопроса, если его нет
                 if not question.get('text'):
                     question['text'] = question.get('question', 'Без текста')
+                
+                # Проверяем наличие баллов за вопрос
+                if not question.get('points'):
+                    question['points'] = 1  # По умолчанию 1 балл
         
         print(f"DEBUG - Преобразованные вопросы: {questions}")
     except Exception as e:
@@ -145,12 +153,14 @@ def take_test(test_id):
         
         # Проверяем ответы
         score = 0
-        total_questions = len(questions)
+        max_score = 0  # Максимально возможный балл
         results = []
         
         for i, question in enumerate(questions):
             question_id = f'question_{i}'
             question_type = question.get('type', '')
+            question_points = int(question.get('points', 1))  # Баллы за вопрос
+            max_score += question_points  # Добавляем к максимальному баллу
             
             # Обработка разных типов вопросов
             if question_type == 'single':
@@ -160,7 +170,7 @@ def take_test(test_id):
                 correct = user_answer == correct_answer
                 
                 if correct:
-                    score += 1
+                    score += question_points  # Добавляем баллы за правильный ответ
                 
                 results.append({
                     'question': question.get('text', ''),
@@ -168,7 +178,8 @@ def take_test(test_id):
                     'options': question.get('options', []),
                     'user_answer': user_answer,
                     'correct_answer': correct_answer,
-                    'is_correct': correct
+                    'is_correct': correct,
+                    'points': question_points  # Добавляем информацию о баллах
                 })
                 
             elif question_type == 'multiple':
@@ -178,7 +189,7 @@ def take_test(test_id):
                 correct = set(user_answers) == set(correct_answers)
                 
                 if correct:
-                    score += 1
+                    score += question_points  # Добавляем баллы за правильный ответ
                 
                 results.append({
                     'question': question.get('text', ''),
@@ -186,7 +197,8 @@ def take_test(test_id):
                     'options': question.get('options', []),
                     'user_answer': user_answers,
                     'correct_answer': correct_answers,
-                    'is_correct': correct
+                    'is_correct': correct,
+                    'points': question_points  # Добавляем информацию о баллах
                 })
                 
             elif question_type == 'text':
@@ -198,21 +210,22 @@ def take_test(test_id):
                 correct = user_answer.lower() == correct_answer.lower()
                 
                 if correct:
-                    score += 1
+                    score += question_points  # Добавляем баллы за правильный ответ
                 
                 results.append({
                     'question': question.get('text', ''),
                     'type': 'text',
                     'user_answer': user_answer,
                     'correct_answer': correct_answer,
-                    'is_correct': correct
+                    'is_correct': correct,
+                    'points': question_points  # Добавляем информацию о баллах
                 })
         
         # Формируем результат теста
         test_result = {
             'score': score,
-            'total': total_questions,
-            'percentage': round((score / total_questions) * 100) if total_questions > 0 else 0,
+            'total': max_score,  # Используем максимальный балл вместо количества вопросов
+            'percentage': round((score / max_score) * 100) if max_score > 0 else 0,
             'questions': results,
             'completed_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }

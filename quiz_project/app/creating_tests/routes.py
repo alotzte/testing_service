@@ -269,11 +269,13 @@ def grade_result(result_id):
         try:
             # Initialize variables to track changes
             original_score = result_data.get('score', 0)
-            total_questions = result_data.get('total', 0)
-            correct_answers = 0
+            total_points = result_data.get('total', 0)
+            current_score = 0
             
             # Process each question and recalculate the total score
             for i, question in enumerate(result_data.get('questions', [])):
+                question_points = int(question.get('points', 1))  # Баллы за вопрос
+                
                 if question.get('type') == 'text':
                     question_id = f'question_{i}'
                     is_correct = request.form.get(f'{question_id}_is_correct') == 'true'
@@ -285,11 +287,11 @@ def grade_result(result_id):
                 
                 # Count correct answers for all question types
                 if question.get('is_correct'):
-                    correct_answers += 1
+                    current_score += question_points
             
             # Update the score with the new total of correct answers
-            new_score = correct_answers
-            percentage = round((new_score / total_questions) * 100) if total_questions > 0 else 0
+            new_score = current_score
+            percentage = round((new_score / total_points) * 100) if total_points > 0 else 0
             
             # Update the result data
             result_data['score'] = new_score
@@ -304,7 +306,7 @@ def grade_result(result_id):
             
             db.session.commit()
             
-            flash(f'Результат теста успешно проверен! Новый результат: {new_score}/{total_questions} ({percentage}%)', 'success')
+            flash(f'Результат теста успешно проверен! Новый результат: {new_score}/{total_points} ({percentage}%)', 'success')
             return redirect(url_for('creating_tests.test_results', test_id=test.id))
             
         except Exception as e:
